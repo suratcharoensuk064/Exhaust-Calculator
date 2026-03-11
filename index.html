@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Exhaust Gas Density Calculator</title>
+</head>
+
+<body>
+
+<h2>Exhaust Gas Density Calculator</h2>
+
+<p>Temperature (°C)</p>
+<input id="temp">
+
+<p>Pressure (kPa)</p>
+<input id="pressure">
+
+<br><br>
+
+<button onclick="calc()">Calculate</button>
+
+<p id="result"></p>
+
+<script>
+
+function calc(){
+
+let T = document.getElementById("temp").value
+let P = document.getElementById("pressure").value
+
+T = Number(T) + 273.15
+
+let rho = P / (0.277 * T)
+
+document.getElementById("result").innerHTML =
+"Density = " + rho + " kg/m3"
+
+}
+
+</script>
+
+</body>
+</html>
