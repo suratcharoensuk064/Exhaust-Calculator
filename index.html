@@ -1,24 +1,75 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Exhaust Gas Density Calculator</title>
+<title>Exhaust Gas Calculator</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f4f6f8;
+text-align:center;
+margin-top:80px;
+}
+
+.container{
+background:white;
+padding:40px;
+width:350px;
+margin:auto;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+input{
+width:80%;
+padding:8px;
+margin:8px;
+font-size:16px;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+background:#2c7be5;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1a5fcc;
+}
+
+#result{
+margin-top:20px;
+font-size:20px;
+font-weight:bold;
+}
+
+</style>
+
 </head>
 
 <body>
 
+<div class="container">
+
 <h2>Exhaust Gas Density Calculator</h2>
 
-<p>Temperature (°C)</p>
-<input id="temp">
+Temperature (°C)<br>
+<input id="temp"><br>
 
-<p>Pressure (kPa)</p>
-<input id="pressure">
-
-<br><br>
+Pressure (kPa)<br>
+<input id="pressure"><br><br>
 
 <button onclick="calc()">Calculate</button>
 
 <p id="result"></p>
+
+</div>
 
 <script>
 
@@ -32,7 +83,7 @@ T = Number(T) + 273.15
 let rho = P / (0.277 * T)
 
 document.getElementById("result").innerHTML =
-"Density = " + rho + " kg/m3"
+"Density = " + rho.toFixed(4) + " kg/m<sup>3</sup>"
 
 }
 
