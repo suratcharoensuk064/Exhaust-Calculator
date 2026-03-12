@@ -3,33 +3,94 @@
 
 <head>
 
-<title>Exhaust Gas Calculator</title>
+<title>Engine Exhaust Calculator</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
 
 body{
-font-family: Arial;
-background:#f4f4f4;
-margin:40px;
+font-family:'Poppins',sans-serif;
+background:linear-gradient(120deg,#eef2f7,#d9e3f0);
+margin:0;
+padding:40px;
 }
 
-.box{
+h1{
+text-align:center;
+margin-bottom:40px;
+font-weight:500;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+}
+
+.card{
+
 background:white;
-padding:20px;
-margin-bottom:25px;
-border-radius:8px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+padding:30px;
+margin-bottom:30px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+
+}
+
+h2{
+margin-top:0;
+font-weight:500;
+}
+
+label{
+display:inline-block;
+width:200px;
+margin-top:8px;
 }
 
 input{
-margin:5px;
-padding:5px;
-width:120px;
+
+padding:7px;
+width:140px;
+border:1px solid #ccc;
+border-radius:6px;
+font-family:'Poppins';
+
 }
 
 button{
-margin-top:10px;
-padding:8px 15px;
+
+margin-top:15px;
+padding:9px 18px;
+border:none;
+background:#4a6cf7;
+color:white;
+border-radius:6px;
+cursor:pointer;
+font-family:'Poppins';
+
+}
+
+button:hover{
+background:#3954d4;
+}
+
+.result{
+
+margin-top:15px;
+font-weight:500;
+font-size:16px;
+
+}
+
+.equation{
+
+background:#f6f7fb;
+padding:12px;
+border-radius:8px;
+font-family:monospace;
+margin-bottom:15px;
+
 }
 
 </style>
@@ -38,61 +99,129 @@ padding:8px 15px;
 
 <body>
 
-<h1>Engine Exhaust Calculator</h1>
+<h1>Engine Exhaust Gas Calculator</h1>
+
+<div class="container">
+
 
 <!-- LAMBDA -->
 
-<div class="box">
+<div class="card">
 
-<h2>Lambda (λ) Calculator</h2>
+<h2>Lambda (λ)</h2>
 
-CO<sub>2</sub> (%) <input id="co2"><br>
-CO (%) <input id="co"><br>
-O<sub>2</sub> (%) <input id="o2"><br>
-HC (ppm) <input id="hc"><br>
-NO<sub>x</sub> (%) <input id="nox"><br>
+<div class="equation">
 
-<br>
+λ = (CO₂ + CO/2 + O₂ + NOx/2 + (Hcv/4 × 3.5/(3.5+CO/CO₂) − Ocv/2))
+/
+((1 + Hcv/4 − Ocv/2)(CO₂ + CO + nHC))
 
-H<sub>cv</sub> <input id="hcv"><br>
-O<sub>cv</sub> <input id="ocv"><br>
+</div>
+
+<label>CO<sub>2</sub> (%)</label>
+<input id="co2"><br>
+
+<label>CO (%)</label>
+<input id="co"><br>
+
+<label>O<sub>2</sub> (%)</label>
+<input id="o2"><br>
+
+<label>HC (ppm)</label>
+<input id="hc"><br>
+
+<label>NO<sub>x</sub> (%)</label>
+<input id="nox"><br>
+
+<label>H<sub>cv</sub></label>
+<input id="hcv"><br>
+
+<label>O<sub>cv</sub></label>
+<input id="ocv"><br>
 
 <button onclick="calcLambda()">Calculate λ</button>
 
-<h3 id="lambda_result"></h3>
+<div class="result" id="lambda_result"></div>
 
 </div>
 
 
 <!-- DENSITY -->
 
-<div class="box">
+<div class="card">
 
-<h2>Exhaust Density</h2>
+<h2>Exhaust Gas Density</h2>
 
-Pressure P (kPa) <input id="P"><br>
-Temperature T (K) <input id="T"><br>
-Molecular weight M (kg/mol) <input id="M"><br>
+<div class="equation">
+
+ρ = PM / RT
+
+</div>
+
+<label>Pressure P (Pa)</label>
+<input id="P"><br>
+
+<label>Temperature (°C)</label>
+<input id="T"><br>
+
+<label>Molecular weight (kg/mol)</label>
+<input id="M"><br>
 
 <button onclick="calcDensity()">Calculate Density</button>
 
-<h3 id="density_result"></h3>
+<div class="result" id="density_result"></div>
 
 </div>
 
 
-<!-- MFUEL -->
+<!-- FUEL MASS FLOW -->
 
-<div class="box">
+<div class="card">
 
 <h2>Fuel Mass Flow</h2>
 
-V<sub>fuel</sub> (L/min) <input id="Vfuel"><br>
-ρ<sub>fuel</sub> (kg/L) <input id="rhofuel"><br>
+<div class="equation">
+
+ṁ<sub>fuel</sub> = ρ<sub>fuel</sub> × V̇<sub>fuel</sub>
+
+</div>
+
+<label>V̇<sub>fuel</sub> (ml/min)</label>
+<input id="Vfuel"><br>
+
+<label>ρ<sub>fuel</sub> (kg/L)</label>
+<input id="rhofuel"><br>
 
 <button onclick="calcMfuel()">Calculate ṁ<sub>fuel</sub></button>
 
-<h3 id="mfuel_result"></h3>
+<div class="result" id="mfuel_result"></div>
+
+</div>
+
+
+<!-- EXHAUST MASS FLOW -->
+
+<div class="card">
+
+<h2>Exhaust Mass Flow</h2>
+
+<div class="equation">
+
+ṁ<sub>exhaust</sub> = ρ × V̇
+
+</div>
+
+<label>ρ exhaust (kg/m³)</label>
+<input id="rho_ex"><br>
+
+<label>V̇ exhaust (m³/s)</label>
+<input id="Vex"><br>
+
+<button onclick="calcMex()">Calculate ṁ<sub>exhaust</sub></button>
+
+<div class="result" id="mex_result"></div>
+
+</div>
 
 </div>
 
@@ -127,10 +256,13 @@ document.getElementById("lambda_result").innerHTML =
 }
 
 
+
 function calcDensity(){
 
-let P=parseFloat(document.getElementById("P").value)*1000
-let T=parseFloat(document.getElementById("T").value)
+let P=parseFloat(document.getElementById("P").value)
+let Tc=parseFloat(document.getElementById("T").value)
+let T=Tc+273.15
+
 let M=parseFloat(document.getElementById("M").value)
 
 let R=8.314
@@ -143,20 +275,35 @@ document.getElementById("density_result").innerHTML =
 }
 
 
+
 function calcMfuel(){
 
 let V=parseFloat(document.getElementById("Vfuel").value)
 let rho=parseFloat(document.getElementById("rhofuel").value)
 
-let m=(V*rho)/60
+let V_L_min=V/1000
+let m=(rho*V_L_min)/60
 
 document.getElementById("mfuel_result").innerHTML =
-"ṁfuel = " + m.toFixed(5) + " kg/s"
+"ṁfuel = " + m.toFixed(6) + " kg/s"
+
+}
+
+
+
+function calcMex(){
+
+let rho=parseFloat(document.getElementById("rho_ex").value)
+let V=parseFloat(document.getElementById("Vex").value)
+
+let m=rho*V
+
+document.getElementById("mex_result").innerHTML =
+"ṁexhaust = " + m.toFixed(3) + " kg/s"
 
 }
 
 </script>
 
 </body>
-
 </html>
