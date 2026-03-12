@@ -1,32 +1,39 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <title>Exhaust Gas Calculator</title>
+
 <style>
+
 body{
 font-family: Arial;
+background:#f4f4f4;
 margin:40px;
-background:#f5f5f5;
 }
 
-.container{
+.box{
 background:white;
 padding:20px;
-margin-bottom:30px;
-border-radius:10px;
+margin-bottom:25px;
+border-radius:8px;
 box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
 input{
-padding:5px;
 margin:5px;
+padding:5px;
+width:120px;
 }
 
 button{
-padding:8px 15px;
 margin-top:10px;
+padding:8px 15px;
 }
+
 </style>
+
 </head>
 
 <body>
@@ -35,48 +42,55 @@ margin-top:10px;
 
 <!-- LAMBDA -->
 
-<div class="container">
+<div class="box">
 
-<h2>Lambda Calculator</h2>
+<h2>Lambda (λ) Calculator</h2>
 
-CO2 (%) <input id="co2"><br>
+CO<sub>2</sub> (%) <input id="co2"><br>
 CO (%) <input id="co"><br>
-O2 (%) <input id="o2"><br>
-NO (%) <input id="no"><br>
+O<sub>2</sub> (%) <input id="o2"><br>
 HC (ppm) <input id="hc"><br>
+NO<sub>x</sub> (%) <input id="nox"><br>
 
-<button onclick="lambda()">Calculate Lambda</button>
+<br>
+
+H<sub>cv</sub> <input id="hcv"><br>
+O<sub>cv</sub> <input id="ocv"><br>
+
+<button onclick="calcLambda()">Calculate λ</button>
 
 <h3 id="lambda_result"></h3>
 
 </div>
 
+
 <!-- DENSITY -->
 
-<div class="container">
+<div class="box">
 
 <h2>Exhaust Density</h2>
 
 Pressure P (kPa) <input id="P"><br>
 Temperature T (K) <input id="T"><br>
-Molecular Weight M (kg/kmol) <input id="M"><br>
+Molecular weight M (kg/mol) <input id="M"><br>
 
-<button onclick="density()">Calculate Density</button>
+<button onclick="calcDensity()">Calculate Density</button>
 
 <h3 id="density_result"></h3>
 
 </div>
 
-<!-- FUEL MASS FLOW -->
 
-<div class="container">
+<!-- MFUEL -->
+
+<div class="box">
 
 <h2>Fuel Mass Flow</h2>
 
-Volume Flow Vfuel (L/min) <input id="Vfuel"><br>
-Fuel Density ρfuel (kg/L) <input id="rhofuel"><br>
+V<sub>fuel</sub> (L/min) <input id="Vfuel"><br>
+ρ<sub>fuel</sub> (kg/L) <input id="rhofuel"><br>
 
-<button onclick="mfuel()">Calculate mfuel</button>
+<button onclick="calcMfuel()">Calculate ṁ<sub>fuel</sub></button>
 
 <h3 id="mfuel_result"></h3>
 
@@ -85,21 +99,22 @@ Fuel Density ρfuel (kg/L) <input id="rhofuel"><br>
 
 <script>
 
-function lambda(){
+function calcLambda(){
 
 let CO2=parseFloat(document.getElementById("co2").value)
 let CO=parseFloat(document.getElementById("co").value)
 let O2=parseFloat(document.getElementById("o2").value)
-let NO=parseFloat(document.getElementById("no").value)
 let HC=parseFloat(document.getElementById("hc").value)/10000
+let NOx=parseFloat(document.getElementById("nox").value)
 
-let Hcv=1.83
-let Ocv=0
+let Hcv=parseFloat(document.getElementById("hcv").value)
+let Ocv=parseFloat(document.getElementById("ocv").value)
+
 let n=6
 
 let numerator =
-CO2 + CO/2 + O2 + NO/2 +
-((Hcv/4)*(3.5/(3.5 + CO/CO2)) - (Ocv/2))
+CO2 + CO/2 + O2 + NOx/2 +
+((Hcv/4)*(3.5/(3.5 + CO/CO2)) - Ocv/2)
 
 let denominator =
 (1 + Hcv/4 - Ocv/2)*(CO2 + CO + n*HC)
@@ -107,38 +122,41 @@ let denominator =
 let lambda = numerator / denominator
 
 document.getElementById("lambda_result").innerHTML =
-"Lambda = " + lambda.toFixed(3)
+"λ = " + lambda.toFixed(3)
 
 }
 
-function density(){
 
-let P = parseFloat(document.getElementById("P").value) * 1000
-let T = parseFloat(document.getElementById("T").value)
-let M = parseFloat(document.getElementById("M").value)
+function calcDensity(){
 
-let R = 8.314
+let P=parseFloat(document.getElementById("P").value)*1000
+let T=parseFloat(document.getElementById("T").value)
+let M=parseFloat(document.getElementById("M").value)
 
-let rho = (P*M)/(R*T)
+let R=8.314
+
+let rho=(P*M)/(R*T)
 
 document.getElementById("density_result").innerHTML =
-"Density = " + rho.toFixed(3) + " kg/m³"
+"ρ = " + rho.toFixed(3) + " kg/m³"
 
 }
 
-function mfuel(){
+
+function calcMfuel(){
 
 let V=parseFloat(document.getElementById("Vfuel").value)
 let rho=parseFloat(document.getElementById("rhofuel").value)
 
-let m=rho*V
+let m=(V*rho)/60
 
 document.getElementById("mfuel_result").innerHTML =
-"mfuel = " + m.toFixed(3) + " kg/min"
+"ṁfuel = " + m.toFixed(5) + " kg/s"
 
 }
 
 </script>
 
 </body>
+
 </html>
