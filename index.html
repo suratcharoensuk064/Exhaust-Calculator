@@ -92,7 +92,7 @@ font-weight:bold;
 <h1>Exhaust Gas Flow Calculator</h1>
 
 
-<!-- 1 FUEL -->
+<!-- 1 Fuel Mass Flow -->
 
 <div class="section">
 
@@ -101,23 +101,23 @@ font-weight:bold;
 <div class="formula">
 
 \[
-\dot{m}_{fuel}=
-\frac{\dot{V}_{fuel}\rho_{fuel}}{60\times10^{6}}
+\dot m_{fuel}=
+\frac{\dot V_{fuel}\rho_{fuel}}{60\times10^{6}}
 \]
 
 </div>
 
-<label>\(\dot{V}_{fuel}\) (ml/min)</label>
+<label>\(\dot V_{fuel}\) (ml/min)</label>
 <input id="vfuel">
 
-<label>\(\rho_{fuel}\) (kg/m³)</label>
+<label>\(\rho_{fuel}\) (kg/L)</label>
 <input id="rho_fuel">
 
 <button onclick="calcFuel()">Calculate</button>
 
 <p class="result">
 
-\(\dot{m}_{fuel}\) =
+\(\dot m_{fuel}\) =
 <span id="mfuel"></span> kg/s
 
 </p>
@@ -125,7 +125,7 @@ font-weight:bold;
 </div>
 
 
-<!-- 2 LAMBDA -->
+<!-- 2 Lambda -->
 
 <div class="section">
 
@@ -170,25 +170,24 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 <label>NOₓ (ppm)</label>
 <input id="nox">
 
-<label>H<sub>cv</sub></label>
+<label>Hcv</label>
 <input id="hcv">
 
-<label>O<sub>cv</sub></label>
+<label>Ocv</label>
 <input id="ocv">
 
 <button onclick="calcLambda()">Calculate</button>
 
 <p class="result">
 
-\(\lambda\) =
-<span id="lambda"></span>
+λ = <span id="lambda"></span>
 
 </p>
 
 </div>
 
 
-<!-- 3 DENSITY -->
+<!-- 3 Density -->
 
 <div class="section">
 
@@ -197,8 +196,7 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 <div class="formula">
 
 \[
-\rho=
-\frac{PM}{RT}
+\rho=\frac{PM}{RT}
 \]
 
 </div>
@@ -216,8 +214,7 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 
 <p class="result">
 
-\(\rho\) =
-<span id="rho"></span> kg/m³
+ρ = <span id="rho"></span> kg/m³
 
 </p>
 
@@ -233,7 +230,7 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 <div class="formula">
 
 \[
-\dot{V}_{G,STD}=G'\dot{m}_{fuel}
+\dot V_{G,STD}=G'\dot m_{fuel}
 \]
 
 </div>
@@ -241,14 +238,14 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 <label>G′</label>
 <input id="gprime">
 
-<label>\(\dot{m}_{fuel}\) (kg/s)</label>
+<label>\(\dot m_{fuel}\) (kg/s)</label>
 <input id="mfuel_input">
 
 <button onclick="calcVstd()">Calculate</button>
 
 <p class="result">
 
-\(\dot{V}_{G,STD}\) =
+\(\dot V_{G,STD}\) =
 <span id="vstd"></span> m³/s
 
 </p>
@@ -256,7 +253,7 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 </div>
 
 
-<!-- 5 VACTUAL -->
+<!-- 5 Vactual -->
 
 <div class="section">
 
@@ -265,27 +262,27 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 <div class="formula">
 
 \[
-\dot{V}_{G,actual}
+\dot V_{G,actual}
 =
-\dot{V}_{G,STD}
+\dot V_{G,STD}
 \frac{T_{actual}}{T_{STD}}
 \]
 
 </div>
 
-<label>\(\dot{V}_{G,STD}\) (m³/s)</label>
+<label>\(\dot V_{G,STD}\) (m³/s)</label>
 <input id="vstd_input">
 
-<label>T<sub>actual</sub> (K)</label>
+<label>Tactual (K)</label>
 <input id="tactual">
 
-<p>T<sub>STD</sub> = 273.15 K</p>
+<p>TSTD = 273.15 K</p>
 
 <button onclick="calcVactual()">Calculate</button>
 
 <p class="result">
 
-\(\dot{V}_{G,actual}\) =
+\(\dot V_{G,actual}\) =
 <span id="vactual"></span> m³/s
 
 </p>
@@ -293,7 +290,7 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 </div>
 
 
-<!-- 6 MEXHAUST -->
+<!-- 6 Exhaust Mass Flow -->
 
 <div class="section">
 
@@ -302,27 +299,28 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 <div class="formula">
 
 \[
-\dot{m}_{exhaust}=\rho\dot{V}
+\dot m_{exhaust}=\rho\dot V
 \]
 
 </div>
 
-<label>\(\rho\) (kg/m³)</label>
+<label>ρ (kg/m³)</label>
 <input id="rho_input">
 
-<label>\(\dot{V}_{actual}\) (m³/s)</label>
+<label>\(\dot V_{actual}\) (m³/s)</label>
 <input id="vactual_input">
 
 <button onclick="calcMexhaust()">Calculate</button>
 
 <p class="result">
 
-\(\dot{m}_{exhaust}\) =
+\(\dot m_{exhaust}\) =
 <span id="mexhaust"></span> kg/s
 
 </p>
 
 </div>
+
 
 </div>
 
@@ -334,11 +332,20 @@ CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
 function calcFuel(){
 
 let vfuel=parseFloat(document.getElementById("vfuel").value)
+
 let rho=parseFloat(document.getElementById("rho_fuel").value)
+
+
+
+rho=rho*1000   // convert kg/L → kg/m³
+
+
 
 let mfuel=(vfuel*rho)/(60*1000000)
 
-document.getElementById("mfuel").innerText=mfuel.toFixed(6)
+
+
+document.getElementById("mfuel").innerText=mfuel.toExponential(3)
 
 }
 
@@ -352,9 +359,9 @@ let co=parseFloat(document.getElementById("co").value)
 
 let o2=parseFloat(document.getElementById("o2").value)
 
-let hcppm=parseFloat(document.getElementById("hc").value)
+let hc=parseFloat(document.getElementById("hc").value)/10000
 
-let noxppm=parseFloat(document.getElementById("nox").value)
+let no=parseFloat(document.getElementById("nox").value)/10000
 
 let hcv=parseFloat(document.getElementById("hcv").value)
 
@@ -362,19 +369,13 @@ let ocv=parseFloat(document.getElementById("ocv").value)
 
 
 
-let hc=hcppm/10000
-
-let no=noxppm/10000
-
-
-
-let n=1   // auto n (hexane assumption)
+let n=1
 
 
 
 let num=
-co2 + co/2 + o2 + no/2 +
-((hcv/4)*(3.5/(3.5+(co/co2))) - ocv/2)*(co2+co)
+co2+co/2+o2+no/2+
+((hcv/4)*(3.5/(3.5+(co/co2)))-ocv/2)*(co2+co)
 
 
 
@@ -427,7 +428,7 @@ let v=g*mf
 
 
 
-document.getElementById("vstd").innerText=v.toFixed(5)
+document.getElementById("vstd").innerText=v.toExponential(3)
 
 }
 
@@ -445,7 +446,7 @@ let v=vstd*(T/273.15)
 
 
 
-document.getElementById("vactual").innerText=v.toFixed(5)
+document.getElementById("vactual").innerText=v.toExponential(3)
 
 }
 
@@ -463,12 +464,11 @@ let m=rho*v
 
 
 
-document.getElementById("mexhaust").innerText=m.toFixed(5)
+document.getElementById("mexhaust").innerText=m.toExponential(3)
 
 }
 
 </script>
-
 
 </body>
 
