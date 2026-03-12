@@ -1,73 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<title>Exhaust Flow Calculator</title>
+<title>Exhaust Gas Flow Calculator</title>
 
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async
- src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <style>
 
 body{
-font-family:Arial;
-background:#f5f6fa;
+font-family: Arial;
+background:#f4f6f9;
+margin:0;
 padding:40px;
 }
 
-.section{
+.container{
+max-width:1100px;
+margin:auto;
+}
+
+h1{
+text-align:center;
+margin-bottom:40px;
+}
+
+.card{
+
 background:white;
 padding:25px;
 margin-bottom:30px;
 border-radius:10px;
-box-shadow:0 0 10px rgba(0,0,0,0.08);
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:30px;
+align-items:center;
+
+}
+
+.inputs label{
+display:block;
+margin-top:10px;
 }
 
 input{
-margin:5px;
+width:180px;
 padding:6px;
-width:120px;
+margin-top:4px;
 }
 
 button{
-margin-top:10px;
-padding:8px 14px;
+
+margin-top:15px;
+padding:8px 16px;
 background:#2f80ed;
-color:white;
 border:none;
+color:white;
 border-radius:5px;
+
 }
 
 .result{
+
+margin-top:15px;
 font-weight:bold;
-margin-top:10px;
+
+}
+
+.formula{
+font-size:18px;
+text-align:right;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<h1>Exhaust Flow Calculation</h1>
+<div class="container">
 
-<!-- Fuel -->
+<h1>Exhaust Gas Flow Calculator</h1>
 
-<div class="section">
 
-<h2>1. Fuel Mass Flow</h2>
+<!-- 1 FUEL -->
 
-\[
-\dot m_{fuel} = \rho_{fuel} \times \dot V_{fuel}
-\]
+<div class="card">
 
-Fuel flow (ml/min)
+<div class="inputs">
+
+<h3>1. Fuel Mass Flow</h3>
+
+<label>Fuel flow (ml/min)</label>
 <input id="vfuel">
 
-Fuel density (kg/L)
+<label>Fuel density (kg/L)</label>
 <input id="rho_fuel">
-
-<br>
 
 <button onclick="calcFuel()">Calculate</button>
 
@@ -77,58 +110,48 @@ Fuel density (kg/L)
 
 </div>
 
-<!-- Lambda -->
-
-<div class="section">
-
-<h2>2. Lambda (Brettschneider)</h2>
+<div class="formula">
 
 \[
-\lambda =
-\frac{
-[CO_2] + \frac{[CO]}{2} + [O_2] + \frac{[NO]}{2}
-+
-\left(
-\frac{H_{cv}}{4}
-\times
-\frac{3.5}{3.5+\frac{CO}{CO_2}}
--
-\frac{O_{cv}}{2}
-\right)
-([CO_2]+[CO])
-}{
-\left(
-1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2}
-\right)
-([CO_2]+[CO]+n[HC])
-}
+\dot m_{fuel} = \rho_{fuel} \times \dot V_{fuel}
 \]
 
-CO₂ (%)
-<input id="co2"><br>
+</div>
 
-CO (%)
-<input id="co"><br>
+</div>
 
-O₂ (%)
-<input id="o2"><br>
 
-HC (ppm)
-<input id="hc"><br>
+<!-- 2 LAMBDA -->
 
-NOx (ppm)
-<input id="nox"><br>
+<div class="card">
 
-Hcv
-<input id="hcv"><br>
+<div class="inputs">
 
-Ocv
-<input id="ocv"><br>
+<h3>2. Lambda</h3>
 
-n
+<label>CO₂ (%)</label>
+<input id="co2">
+
+<label>CO (%)</label>
+<input id="co">
+
+<label>O₂ (%)</label>
+<input id="o2">
+
+<label>HC (ppm)</label>
+<input id="hc">
+
+<label>NOx (ppm)</label>
+<input id="nox">
+
+<label>Hcv</label>
+<input id="hcv">
+
+<label>Ocv</label>
+<input id="ocv">
+
+<label>n</label>
 <input id="n">
-
-<br>
 
 <button onclick="calcLambda()">Calculate</button>
 
@@ -138,24 +161,47 @@ n
 
 </div>
 
-<!-- Density -->
-
-<div class="section">
-
-<h2>3. Exhaust Gas Density</h2>
+<div class="formula">
 
 \[
-\rho = \frac{PM}{RT}
+\lambda =
+\frac{
+CO_2 + \frac{CO}{2} + O_2 + \frac{NO}{2}
++
+\left(
+\frac{H_{cv}}{4}
+\frac{3.5}{3.5 + CO/CO_2}
+-
+\frac{O_{cv}}{2}
+\right)
+(CO_2+CO)
+}{
+\left(1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2}\right)
+(CO_2+CO+nHC)
+}
 \]
 
-Pressure (Pa)
-<input id="pressure"><br>
+</div>
 
-Temperature (°C)
-<input id="temp"><br>
+</div>
 
-Molecular weight (kg/mol)
-<input id="mw"><br>
+
+<!-- 3 DENSITY -->
+
+<div class="card">
+
+<div class="inputs">
+
+<h3>3. Exhaust Density</h3>
+
+<label>Pressure (Pa)</label>
+<input id="pressure">
+
+<label>Temperature (°C)</label>
+<input id="temp">
+
+<label>Molecular weight (kg/mol)</label>
+<input id="mw">
 
 <button onclick="calcDensity()">Calculate</button>
 
@@ -165,20 +211,30 @@ Molecular weight (kg/mol)
 
 </div>
 
-<!-- Vstd -->
-
-<div class="section">
-
-<h2>4. Exhaust Volume Flow (STD)</h2>
+<div class="formula">
 
 \[
-\dot V_{G,STD} = G' \times \dot m_{fuel}
+\rho = \frac{PM}{RT}
 \]
 
-G'
+</div>
+
+</div>
+
+
+<!-- 4 VSTD -->
+
+<div class="card">
+
+<div class="inputs">
+
+<h3>4. Exhaust Volume Flow (STD)</h3>
+
+<label>G'</label>
 <input id="gprime">
 
-<br>
+<label>ṁfuel (kg/s)</label>
+<input id="mfuel_input">
 
 <button onclick="calcVstd()">Calculate</button>
 
@@ -188,25 +244,32 @@ V̇STD = <span id="vstd"></span> m³/s
 
 </div>
 
-<!-- Vactual -->
-
-<div class="section">
-
-<h2>5. Exhaust Volume Flow (Actual)</h2>
+<div class="formula">
 
 \[
-\dot V_{G,actual} =
-\dot V_{G,STD}
-\times
-\frac{T_{actual}}{T_{STD}}
+\dot V_{G,STD}=G' \times \dot m_{fuel}
 \]
 
-Tactual (K)
+</div>
+
+</div>
+
+
+<!-- 5 VACTUAL -->
+
+<div class="card">
+
+<div class="inputs">
+
+<h3>5. Exhaust Volume Flow (Actual)</h3>
+
+<label>VSTD (m³/s)</label>
+<input id="vstd_input">
+
+<label>Tactual (K)</label>
 <input id="tactual">
 
 TSTD = 273.15 K
-
-<br>
 
 <button onclick="calcVactual()">Calculate</button>
 
@@ -216,15 +279,33 @@ V̇actual = <span id="vactual"></span> m³/s
 
 </div>
 
-<!-- mexhaust -->
-
-<div class="section">
-
-<h2>6. Exhaust Mass Flow</h2>
+<div class="formula">
 
 \[
-\dot m_{exhaust} = \rho \times \dot V
+\dot V_{G,actual}
+=
+\dot V_{G,STD}
+\frac{T_{actual}}{T_{STD}}
 \]
+
+</div>
+
+</div>
+
+
+<!-- 6 MEXHAUST -->
+
+<div class="card">
+
+<div class="inputs">
+
+<h3>6. Exhaust Mass Flow</h3>
+
+<label>ρ (kg/m³)</label>
+<input id="rho_input">
+
+<label>Vactual (m³/s)</label>
+<input id="vactual_input">
 
 <button onclick="calcMexhaust()">Calculate</button>
 
@@ -234,24 +315,33 @@ V̇actual = <span id="vactual"></span> m³/s
 
 </div>
 
-<script>
+<div class="formula">
 
-let mfuel=0
-let lambda=0
-let rho=0
-let vstd=0
-let vactual=0
+\[
+\dot m_{exhaust} = \rho \times \dot V
+\]
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<script>
 
 function calcFuel(){
 
 let vfuel=document.getElementById("vfuel").value
-let rhoFuel=document.getElementById("rho_fuel").value
+let rho=document.getElementById("rho_fuel").value
 
-mfuel=(vfuel/1000000/60)*(rhoFuel*1000)
+let mfuel=(vfuel/1000000/60)*(rho*1000)
 
 document.getElementById("mfuel").innerText=mfuel.toFixed(6)
 
 }
+
 
 function calcLambda(){
 
@@ -266,18 +356,19 @@ let hcv=parseFloat(document.getElementById("hcv").value)
 let ocv=parseFloat(document.getElementById("ocv").value)
 let n=parseFloat(document.getElementById("n").value)
 
-let numerator =
+let num=
 co2 + co/2 + o2 + nox/2 +
 ((hcv/4)*(3.5/(3.5+(co/co2))) - ocv/2)*(co2+co)
 
-let denominator =
-(1 + hcv/4 - ocv/2)*(co2 + co + n*hc)
+let den=
+(1+hcv/4-ocv/2)*(co2+co+n*hc)
 
-lambda = numerator/denominator
+let lambda=num/den
 
 document.getElementById("lambda").innerText=lambda.toFixed(3)
 
 }
+
 
 function calcDensity(){
 
@@ -287,37 +378,45 @@ let MW=document.getElementById("mw").value
 
 let R=8.314
 
-rho=(P*MW)/(R*T)
+let rho=(P*MW)/(R*T)
 
 document.getElementById("rho").innerText=rho.toFixed(3)
 
 }
 
+
 function calcVstd(){
 
-let gprime=document.getElementById("gprime").value
+let g=document.getElementById("gprime").value
+let mf=document.getElementById("mfuel_input").value
 
-vstd=gprime*mfuel
+let v=g*mf
 
-document.getElementById("vstd").innerText=vstd.toFixed(5)
+document.getElementById("vstd").innerText=v.toFixed(5)
 
 }
+
 
 function calcVactual(){
 
-let tactual=document.getElementById("tactual").value
+let vstd=document.getElementById("vstd_input").value
+let T=document.getElementById("tactual").value
 
-vactual=vstd*(tactual/273.15)
+let v=vstd*(T/273.15)
 
-document.getElementById("vactual").innerText=vactual.toFixed(5)
+document.getElementById("vactual").innerText=v.toFixed(5)
 
 }
 
+
 function calcMexhaust(){
 
-let mexhaust=rho*vactual
+let rho=document.getElementById("rho_input").value
+let v=document.getElementById("vactual_input").value
 
-document.getElementById("mexhaust").innerText=mexhaust.toFixed(5)
+let m=rho*v
+
+document.getElementById("mexhaust").innerText=m.toFixed(5)
 
 }
 
