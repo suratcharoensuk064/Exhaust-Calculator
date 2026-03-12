@@ -2,7 +2,7 @@
 <html>
 
 <head>
-<title>Exhaust Gas Calculator</title>
+<title>Gas Density Calculator</title>
 
 <style>
 
@@ -39,10 +39,6 @@ border-radius:5px;
 cursor:pointer;
 }
 
-button:hover{
-background:#1a5fcc;
-}
-
 #result{
 margin-top:20px;
 font-size:20px;
@@ -57,13 +53,16 @@ font-weight:bold;
 
 <div class="container">
 
-<h2>Exhaust Gas Density Calculator</h2>
+<h2>Gas Density Calculator</h2>
 
-Temperature (°C)<br>
-<input id="temp"><br>
+Pressure P (Pa)<br>
+<input id="pressure"><br>
 
-Pressure (kPa)<br>
-<input id="pressure"><br><br>
+Molecular Weight M (kg/mol)<br>
+<input id="molecular"><br>
+
+Temperature T (°C)<br>
+<input id="temp"><br><br>
 
 <button onclick="calc()">Calculate</button>
 
@@ -75,12 +74,13 @@ Pressure (kPa)<br>
 
 function calc(){
 
-let T = document.getElementById("temp").value
-let P = document.getElementById("pressure").value
+let P = Number(document.getElementById("pressure").value)
+let M = Number(document.getElementById("molecular").value)
+let T = Number(document.getElementById("temp").value) + 273.15
 
-T = Number(T) + 273.15
+let R = 8.314
 
-let rho = P / (0.277 * T)
+let rho = (P * M) / (R * T)
 
 document.getElementById("result").innerHTML =
 "Density = " + rho.toFixed(4) + " kg/m<sup>3</sup>"
