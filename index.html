@@ -5,6 +5,8 @@
 
 <title>Engine Exhaust Calculator</title>
 
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
@@ -110,33 +112,52 @@ margin-bottom:15px;
 
 <h2>Lambda (λ)</h2>
 
-<div class="equation">
+<div class="card">
 
-λ = (CO₂ + CO/2 + O₂ + NOx/2 + (Hcv/4 × 3.5/(3.5+CO/CO₂) − Ocv/2))
-/
-((1 + Hcv/4 − Ocv/2)(CO₂ + CO + nHC))
+<h2>Lambda (λ)</h2>
 
-</div>
+<p>
 
-<label>CO<sub>2</sub> (%)</label>
+\[
+\lambda =
+\frac{
+[CO_2] + \frac{[CO]}{2} + [O_2] + \frac{[NO]}{2}
++
+\left(
+\frac{H_{cv}}{4}
+\frac{3.5}{3.5 + \frac{[CO]}{[CO_2]}}
+-
+\frac{O_{cv}}{2}
+\right)
+([CO_2]+[CO])
+}
+{
+\left(1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2}\right)
+([CO_2]+[CO]+n[HC])
+}
+\]
+
+</p>
+
+<label>CO₂ (%)</label>
 <input id="co2"><br>
 
 <label>CO (%)</label>
 <input id="co"><br>
 
-<label>O<sub>2</sub> (%)</label>
+<label>O₂ (%)</label>
 <input id="o2"><br>
 
 <label>HC (ppm)</label>
 <input id="hc"><br>
 
-<label>NO<sub>x</sub> (%)</label>
+<label>NOx (ppm)</label>
 <input id="nox"><br>
 
-<label>H<sub>cv</sub></label>
+<label>Hcv</label>
 <input id="hcv"><br>
 
-<label>O<sub>cv</sub></label>
+<label>Ocv</label>
 <input id="ocv"><br>
 
 <button onclick="calcLambda()">Calculate λ</button>
@@ -463,20 +484,29 @@ function calcLambda(){
 let CO2=parseFloat(document.getElementById("co2").value)
 let CO=parseFloat(document.getElementById("co").value)
 let O2=parseFloat(document.getElementById("o2").value)
-let HC=parseFloat(document.getElementById("hc").value)/10000
-let NOx=parseFloat(document.getElementById("nox").value)
+
+let HC_ppm=parseFloat(document.getElementById("hc").value)
+let NOx_ppm=parseFloat(document.getElementById("nox").value)
 
 let Hcv=parseFloat(document.getElementById("hcv").value)
 let Ocv=parseFloat(document.getElementById("ocv").value)
+
+let HC = HC_ppm / 10000
+let NOx = NOx_ppm / 10000
 
 let n=6
 
 let numerator =
 CO2 + CO/2 + O2 + NOx/2 +
+(
 ((Hcv/4)*(3.5/(3.5 + CO/CO2)) - Ocv/2)
+*
+(CO2 + CO)
+)
 
 let denominator =
-(1 + Hcv/4 - Ocv/2)*(CO2 + CO + n*HC)
+(1 + Hcv/4 - Ocv/2) *
+(CO2 + CO + n*HC)
 
 let lambda = numerator / denominator
 
