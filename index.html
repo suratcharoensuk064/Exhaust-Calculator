@@ -113,13 +113,13 @@ document.getElementById("lambda_result").innerHTML =
 
 function density(){
 
-let P=parseFloat(document.getElementById("P").value)
-let T=parseFloat(document.getElementById("T").value)
-let M=parseFloat(document.getElementById("M").value)
+let P = parseFloat(document.getElementById("P").value) * 1000
+let T = parseFloat(document.getElementById("T").value)
+let M = parseFloat(document.getElementById("M").value)
 
-let R=8.314
+let R = 8.314
 
-let rho=(P*M)/(R*T)
+let rho = (P*M)/(R*T)
 
 document.getElementById("density_result").innerHTML =
 "Density = " + rho.toFixed(3) + " kg/m³"
