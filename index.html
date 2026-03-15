@@ -230,6 +230,54 @@ CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
 
 
 
+<div class="section">
+
+<h3>2. Theoretical Air Requirement</h3>
+
+<div class="formula">
+
+\[
+A_0 =
+\frac{22.4}{0.21}
+\left(
+\frac{C}{12}
++
+\frac{1}{4}
+\left(
+\frac{H}{8}-O
+\right)
++
+\frac{S}{32}
+\right)
+\]
+
+</div>
+
+<label>C (Carbon in fuel)</label>
+<input id="C">
+
+<label>H (Hydrogen in fuel)</label>
+<input id="H">
+
+<label>O (Oxygen in fuel)</label>
+<input id="O">
+
+<label>S (Sulfur in fuel)</label>
+<input id="S">
+
+<button onclick="calcA0()">Calculate</button>
+
+<p class="result">
+
+\(A_0\) =
+<span id="A0"></span> m³/kg fuel
+
+</p>
+
+</div>
+
+
+  
 <!-- VSTD -->
 
 <div class="section">
