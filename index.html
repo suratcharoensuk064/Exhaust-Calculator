@@ -232,89 +232,6 @@ CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
 
 <div class="section">
 
-<h3>2. Theoretical Air Requirement</h3>
-
-<div class="formula">
-
-<div class="formula">
-
-<div class="formula">
-
-\[
-A_0 =
-\dfrac{22.4}{0.21}
-\left(
-\dfrac{C}{12}
-+
-\dfrac{H}{4}
--
-\dfrac{O}{8}
-+
-\dfrac{S}{32}
-\right)
-\]
-
-</div>
-
-.input-group{
-
-display:flex;
-flex-direction:column;
-align-items:center;
-
-}
-
-.input-group input{
-
-width:260px;
-padding:7px;
-margin-top:5px;
-margin-bottom:12px;
-
-}
-
-.input-group label{
-
-margin-top:5px;
-
-}
-
-button{
-
-margin-top:10px;
-padding:8px 18px;
-
-}
-<div class="input-group">
-
-<label>C (Carbon in fuel)</label>
-<input id="C" type="number" step="any">
-
-<label>H (Hydrogen in fuel)</label>
-<input id="H" type="number" step="any">
-
-<label>O (Oxygen in fuel)</label>
-<input id="O" type="number" step="any">
-
-<label>S (Sulfur in fuel)</label>
-<input id="S" type="number" step="any">
-
-<button onclick="calcA0()">Calculate</button>
-
-</div>
-
-<p class="result">
-
-\(A_0\) = <span id="A0"></span> m³/kg fuel
-
-</p>
-
-</div>
-
-
-
-<div class="section">
-
 <h3>3. Dry Exhaust Gas Volume</h3>
 
 <div class="formula">
@@ -551,35 +468,6 @@ let rho=(P*MW)/(R*T)
 
 document.getElementById("rho").innerText=
 rho.toFixed(3)
-
-}
-
-
-
-function calcA0(){
-
-let C=parseFloat(document.getElementById("C").value)
-
-let H=parseFloat(document.getElementById("H").value)
-
-let O=parseFloat(document.getElementById("O").value)
-
-let S=parseFloat(document.getElementById("S").value)
-
-
-
-let A0=(22.4/0.21)*
-(
-(C/12) +
-(H/4) -
-(O/8) +
-(S/32)
-)
-
-
-
-document.getElementById("A0").innerText=
-A0.toFixed(3)
 
 }
 
