@@ -470,6 +470,34 @@ rho.toFixed(3)
 
 
 
+function calcA0(){
+
+let C=parseFloat(document.getElementById("C").value)
+
+let H=parseFloat(document.getElementById("H").value)
+
+let O=parseFloat(document.getElementById("O").value)
+
+let S=parseFloat(document.getElementById("S").value)
+
+
+
+let A0=(22.4/0.21)*
+(
+(C/12) +
+(1/4)*((H/8)-O) +
+(S/32)
+)
+
+
+
+document.getElementById("A0").innerText=
+A0.toFixed(3)
+
+}
+
+
+  
 function calcVstd(){
 
 let g=parseFloat(document.getElementById("gprime").value)
