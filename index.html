@@ -279,6 +279,57 @@ A_0 =
 </div>
 
 
+
+<div class="section">
+
+<h3>3. Dry Exhaust Gas Volume</h3>
+
+<div class="formula">
+
+\[
+G' =
+(\lambda-0.21)A_0
++
+22.4
+\left(
+\dfrac{C}{12}
++
+\dfrac{S}{32}
++
+\dfrac{N}{28}
+\right)
+\tag{2.40}
+\]
+
+</div>
+
+<label>λ (Lambda)</label>
+<input id="lambda_input">
+
+<label>A₀ (m³N/kg fuel)</label>
+<input id="A0_input">
+
+<label>C (Carbon in fuel)</label>
+<input id="C_g">
+
+<label>S (Sulfur in fuel)</label>
+<input id="S_g">
+
+<label>N (Nitrogen in fuel)</label>
+<input id="N_g">
+
+<button onclick="calcG()">Calculate</button>
+
+<p class="result">
+
+G′ =
+<span id="G_result"></span> m³/kg fuel
+
+</p>
+
+</div>
+
+
   
 <!-- VSTD -->
 
@@ -496,6 +547,34 @@ let A0=(22.4/0.21)*
 
 document.getElementById("A0").innerText=
 A0.toFixed(3)
+
+}
+
+
+
+function calcG(){
+
+let lambda=parseFloat(document.getElementById("lambda_input").value)
+
+let A0=parseFloat(document.getElementById("A0_input").value)
+
+let C=parseFloat(document.getElementById("C_g").value)
+
+let S=parseFloat(document.getElementById("S_g").value)
+
+let N=parseFloat(document.getElementById("N_g").value)
+
+
+
+let G=
+(lambda-0.21)*A0
++
+22.4*((C/12)+(S/32)+(N/28))
+
+
+
+document.getElementById("G_result").innerText=
+G.toFixed(3)
 
 }
 
