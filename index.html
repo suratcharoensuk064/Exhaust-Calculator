@@ -236,16 +236,13 @@ CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
 
 <div class="formula">
 
-<div class="formula">
-
 \[
 A_0 =
 \dfrac{22.4}{0.21}
 \left\{
 \left(\dfrac{C}{12}\right)
 +
-\dfrac{1}{4}
-\left(\dfrac{H}{8}-O\right)
+\dfrac{1}{4}\left(\dfrac{H}{8}-O\right)
 +
 \left(\dfrac{S}{32}\right)
 \right\}
@@ -253,34 +250,33 @@ A_0 =
 
 </div>
 
-<div class="input-box">
+<form onsubmit="calcA0(); return false;">
 
-<label>C (Carbon in fuel)</label>
-<input id="C" type="number" step="any">
+<label>C (Carbon in fuel)</label><br>
+<input type="number" id="C" step="any"><br><br>
 
-<label>H (Hydrogen in fuel)</label>
-<input id="H" type="number" step="any">
+<label>H (Hydrogen in fuel)</label><br>
+<input type="number" id="H" step="any"><br><br>
 
-<label>O (Oxygen in fuel)</label>
-<input id="O" type="number" step="any">
+<label>O (Oxygen in fuel)</label><br>
+<input type="number" id="O" step="any"><br><br>
 
-<label>S (Sulfur in fuel)</label>
-<input id="S" type="number" step="any">
+<label>S (Sulfur in fuel)</label><br>
+<input type="number" id="S" step="any"><br><br>
 
-<button onclick="calcA0()">Calculate</button>
+<button type="submit">Calculate</button>
 
-</div>
+</form>
 
 <p class="result">
 
-\(A_0\) =
-<span id="A0"></span> m³/kg fuel
+\(A_0\) = <span id="A0"> </span> m³/kg fuel
 
 </p>
 
 </div>
 
-
+  
   
 <div class="section">
 
@@ -535,8 +531,7 @@ let S=parseFloat(document.getElementById("S").value)
 let A0=(22.4/0.21)*
 (
 (C/12) +
-(H/4) -
-(O/8) +
+(1/4)*((H/8)-O) +
 (S/32)
 )
 
