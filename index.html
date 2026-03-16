@@ -435,6 +435,54 @@ G′ =
 </div>
 
 
+
+<div class="formula">
+
+\[
+\dot{m}_{G,EB}
+=
+m_w
+\left(
+\dfrac{C_{PW}}{C_{PG}}
+\right)
+\left[
+\dfrac{T_{WO}-T_{WI}}{T_{GI}-T_{GO}}
+\right]
+\]
+
+</div>
+
+  <label>m_w (kg/s)</label><br>
+<input id="mw" type="number" step="any"><br><br>
+
+<label>C_PW</label><br>
+<input id="cpw" type="number" step="any"><br><br>
+
+<label>C_PG</label><br>
+<input id="cpg" type="number" step="any"><br><br>
+
+<label>T_WO (°C)</label><br>
+<input id="two" type="number" step="any"><br><br>
+
+<label>T_WI (°C)</label><br>
+<input id="twi" type="number" step="any"><br><br>
+
+<label>T_GI (°C)</label><br>
+<input id="tgi" type="number" step="any"><br><br>
+
+<label>T_GO (°C)</label><br>
+<input id="tgo" type="number" step="any"><br><br>
+
+<button onclick="calcGas()">Calculate</button>
+
+<p>
+
+\(\dot{m}_{G,EB}\) =
+<span id="result"></span> kg/s
+
+</p>
+
+  
 <script>
 
 
@@ -621,6 +669,28 @@ let m=rho*v
 
 document.getElementById("mexhaust").innerText=
 m.toFixed(6)
+
+}
+
+
+function calcGas(){
+
+let mw=parseFloat(document.getElementById("mw").value)
+
+let cpw=parseFloat(document.getElementById("cpw").value)
+let cpg=parseFloat(document.getElementById("cpg").value)
+
+let TWO=parseFloat(document.getElementById("two").value)+273.15
+let TWI=parseFloat(document.getElementById("twi").value)+273.15
+let TGI=parseFloat(document.getElementById("tgi").value)+273.15
+let TGO=parseFloat(document.getElementById("tgo").value)+273.15
+
+let result=
+mw*
+(cpw/cpg)*
+((TWO-TWI)/(TGI-TGO))
+
+document.getElementById("result").innerHTML=result.toFixed(4)
 
 }
 
