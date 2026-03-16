@@ -1,11 +1,12 @@
+```html
 <!DOCTYPE html>
 <html>
-
 <head>
 
 <meta charset="UTF-8">
+<title>Exhaust Gas Calculator</title>
 
-<title>Exhaust Gas Flow Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <style>
 
@@ -16,49 +17,389 @@ padding:40px;
 }
 
 .container{
-max-width:900px;
+max-width:1000px;
 margin:auto;
 }
 
 .card{
 background:white;
 padding:25px;
+margin-bottom:25px;
 border-radius:10px;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
-margin-bottom:30px;
 }
 
 h1{
 text-align:center;
+margin-bottom:40px;
 }
 
 input{
 width:200px;
 padding:6px;
-margin:5px 0;
+margin:4px 0;
 }
 
 button{
-padding:8px 18px;
-background:#2d6cdf;
+padding:8px 14px;
+background:#2f80ed;
 color:white;
 border:none;
 border-radius:5px;
 cursor:pointer;
 }
 
-button:hover{
-background:#1c4fb6;
-}
-
 .result{
-margin-top:15px;
+margin-top:10px;
 font-weight:bold;
 }
 
-.equation{
-font-style:italic;
-margin-bottom:10px;
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Exhaust Gas Calculator</h1>
+
+<!-- Fuel Flow -->
+
+<div class="card">
+
+<h3>1. Fuel Flow</h3>
+
+\[
+\dot m_{fuel} =
+\frac{\dot V_{fuel}\rho_{fuel}}{60\times10^6}
+\]
+
+<label>Fuel Flow (ml/min)</label><br>
+<input id="vfuel"><br>
+
+<label>Fuel Density (kg/L)</label><br>
+<input id="rhofuel"><br>
+
+<button onclick="calcFuel()">Calculate</button>
+
+<p class="result" id="fuelResult"></p>
+
+</div>
+
+
+<!-- Lambda -->
+
+<div class="card">
+
+<h3>2. Lambda (λ)</h3>
+
+<label>CO₂ (%)</label><br>
+<input id="co2"><br>
+
+<label>CO (%)</label><br>
+<input id="co"><br>
+
+<label>O₂ (%)</label><br>
+<input id="o2"><br>
+
+<label>HC (ppm)</label><br>
+<input id="hc"><br>
+
+<label>NO (%)</label><br>
+<input id="no"><br>
+
+<label>Hcv</label><br>
+<input id="hcv"><br>
+
+<label>Ocv</label><br>
+<input id="ocv"><br>
+
+<button onclick="calcLambda()">Calculate</button>
+
+<p class="result" id="lambdaResult"></p>
+
+</div>
+
+
+<!-- Density -->
+
+<div class="card">
+
+<h3>3. Exhaust Gas Density</h3>
+
+\[
+\rho = \frac{PM}{RT}
+\]
+
+<label>Pressure (Pa)</label><br>
+<input id="P"><br>
+
+<label>Molecular Weight (g/mol)</label><br>
+<input id="M"><br>
+
+<label>Temperature (°C)</label><br>
+<input id="T"><br>
+
+<button onclick="calcDensity()">Calculate</button>
+
+<p class="result" id="rhoResult"></p>
+
+</div>
+
+
+<!-- A0 -->
+
+<div class="card">
+
+<h3>4. Stoichiometric Air Requirement (A₀)</h3>
+
+\[
+A_0=
+\frac{22.4}{0.21}
+\left(
+\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32}
+\right)
+\]
+
+<label>C</label><br>
+<input id="C"><br>
+
+<label>H</label><br>
+<input id="H"><br>
+
+<label>O</label><br>
+<input id="O"><br>
+
+<label>S</label><br>
+<input id="S"><br>
+
+<button onclick="calcA0()">Calculate</button>
+
+<p class="result" id="A0Result"></p>
+
+</div>
+
+
+<!-- G' -->
+
+<div class="card">
+
+<h3>5. Dry Exhaust Gas Volume (G')</h3>
+
+<label>N</label><br>
+<input id="N"><br>
+
+<button onclick="calcG()">Calculate</button>
+
+<p class="result" id="GResult"></p>
+
+</div>
+
+
+<!-- Vstd -->
+
+<div class="card">
+
+<h3>6. Standard Exhaust Volume</h3>
+
+\[
+V_{std} = G' \times \dot m_{fuel}
+\]
+
+<button onclick="calcVstd()">Calculate</button>
+
+<p class="result" id="VstdResult"></p>
+
+</div>
+
+
+<!-- Vactual -->
+
+<div class="card">
+
+<h3>7. Actual Exhaust Volume</h3>
+
+\[
+V_{actual} = V_{std}\left(\frac{T_{actual}}{T_{std}}\right)
+\]
+
+<label>Tactual (°C)</label><br>
+<input id="Tactual"><br>
+
+<button onclick="calcVactual()">Calculate</button>
+
+<p class="result" id="VactualResult"></p>
+
+</div>
+
+
+<!-- Exhaust Flow Volume -->
+
+<div class="card">
+
+<h3>8. Exhaust Flow (V × Density)</h3>
+
+<button onclick="calcExhaust()">Calculate</button>
+
+<p class="result" id="ExhaustResult"></p>
+
+</div>
+
+
+<!-- Energy Balance -->
+
+<div class="card">
+
+<h3>9. Exhaust Flow (Energy Balance)</h3>
+
+<label>Water Flow (LPM)</label><br>
+<input id="mw"><br>
+
+<label>Cpw</label><br>
+<input id="cpw"><br>
+
+<label>Cpg</label><br>
+<input id="cpg"><br>
+
+<label>TWO (°C)</label><br>
+<input id="two"><br>
+
+<label>TWI (°C)</label><br>
+<input id="twi"><br>
+
+<label>TGI (°C)</label><br>
+<input id="tgi"><br>
+
+<label>TGO (°C)</label><br>
+<input id="tgo"><br>
+
+<button onclick="calcEnergy()">Calculate</button>
+
+<p class="result" id="EnergyResult"></p>
+
+</div>
+
+</div>
+
+
+<script>
+
+let mfuel,lambda,rho,A0,G,Vstd,Vactual
+
+function calcFuel(){
+
+let V=parseFloat(vfuel.value)
+let rho=parseFloat(rhofuel.value)
+
+mfuel=(V*rho)/(60*1000000)
+
+fuelResult.innerHTML="ṁfuel = "+mfuel.toFixed(6)+" kg/s"
+
 }
 
-</style
+function calcLambda(){
+
+let co2=parseFloat(co2.value)
+let co=parseFloat(co.value)
+let o2=parseFloat(o2.value)
+let hc=parseFloat(hc.value)/10000
+let no=parseFloat(no.value)
+
+let hcv=parseFloat(hcv.value)
+let ocv=parseFloat(ocv.value)
+
+lambda=(co2+co/2+o2+no/2)/((1+hcv/4-ocv/2)*(co2+co+hc))
+
+lambdaResult.innerHTML="λ = "+lambda.toFixed(3)
+
+}
+
+function calcDensity(){
+
+let P=parseFloat(document.getElementById("P").value)
+let M=parseFloat(document.getElementById("M").value)/1000
+let T=parseFloat(document.getElementById("T").value)+273.15
+
+rho=(P*M)/(8.314*T)
+
+rhoResult.innerHTML="ρ = "+rho.toFixed(3)+" kg/m³"
+
+}
+
+function calcA0(){
+
+let C=parseFloat(C.value)
+let H=parseFloat(H.value)
+let O=parseFloat(O.value)
+let S=parseFloat(S.value)
+
+A0=(22.4/0.21)*((C/12)+(H/4)-(O/8)+(S/32))
+
+A0Result.innerHTML="A₀ = "+A0.toFixed(3)
+
+}
+
+function calcG(){
+
+let C=parseFloat(C.value)
+let S=parseFloat(S.value)
+let N=parseFloat(N.value)
+
+G=(lambda-0.21)*A0+22.4*((C/12)+(S/32)+(N/28))
+
+GResult.innerHTML="G' = "+G.toFixed(3)+" m³/kg fuel"
+
+}
+
+function calcVstd(){
+
+Vstd=G*mfuel
+
+VstdResult.innerHTML="Vstd = "+Vstd.toFixed(4)+" m³/s"
+
+}
+
+function calcVactual(){
+
+let Tactual=parseFloat(Tactual.value)+273.15
+
+Vactual=Vstd*(Tactual/273.15)
+
+VactualResult.innerHTML="Vactual = "+Vactual.toFixed(4)+" m³/s"
+
+}
+
+function calcExhaust(){
+
+let result=Vactual*rho
+
+ExhaustResult.innerHTML="ṁexhaust = "+result.toFixed(4)+" kg/s"
+
+}
+
+function calcEnergy(){
+
+let mw=parseFloat(document.getElementById("mw").value)
+
+let cpw=parseFloat(cpw.value)
+let cpg=parseFloat(cpg.value)
+
+let TWO=parseFloat(two.value)+273.15
+let TWI=parseFloat(twi.value)+273.15
+let TGI=parseFloat(tgi.value)+273.15
+let TGO=parseFloat(tgo.value)+273.15
+
+let mwkg=(mw/60)
+
+let result=mwkg*(cpw/cpg)*((TWO-TWI)/(TGI-TGO))
+
+EnergyResult.innerHTML="ṁG,EB = "+result.toFixed(4)+" kg/s"
+
+}
+
+</script>
+
+</body>
+</html>
+```
