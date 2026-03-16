@@ -432,9 +432,10 @@ G′ =
 </div>
 
 
-</div>
 
+<div class="section">
 
+<h3>Gas Mass Flow Rate</h3>
 
 <div class="formula">
 
@@ -452,35 +453,37 @@ m_w
 
 </div>
 
-<label>m_w (kg/s)</label><br>
-<input id="mw" type="number" step="any"><br><br>
+<label>m<sub>w</sub> (kg/s)</label><br>
+<input id="mw"><br><br>
 
-<label>C_PW</label><br>
-<input id="cpw" type="number" step="any"><br><br>
+<label>C<sub>PW</sub></label><br>
+<input id="cpw"><br><br>
 
-<label>C_PG</label><br>
-<input id="cpg" type="number" step="any"><br><br>
+<label>C<sub>PG</sub></label><br>
+<input id="cpg"><br><br>
 
-<label>T_WO (°C)</label><br>
-<input id="two" type="number" step="any"><br><br>
+<label>T<sub>WO</sub> (°C)</label><br>
+<input id="two"><br><br>
 
-<label>T_WI (°C)</label><br>
-<input id="twi" type="number" step="any"><br><br>
+<label>T<sub>WI</sub> (°C)</label><br>
+<input id="twi"><br><br>
 
-<label>T_GI (°C)</label><br>
-<input id="tgi" type="number" step="any"><br><br>
+<label>T<sub>GI</sub> (°C)</label><br>
+<input id="tgi"><br><br>
 
-<label>T_GO (°C)</label><br>
-<input id="tgo" type="number" step="any"><br><br>
+<label>T<sub>GO</sub> (°C)</label><br>
+<input id="tgo"><br><br>
 
 <button onclick="calcGas()">Calculate</button>
 
 <p>
 
 \(\dot{m}_{G,EB}\) =
-<span id="result"></span> kg/s
+<span id="result">0</span> kg/s
 
 </p>
+
+</div>
 
   
 <script>
@@ -673,6 +676,8 @@ m.toFixed(6)
 }
 
 
+<script>
+
 function calcGas(){
 
 let mw=parseFloat(document.getElementById("mw").value)
@@ -680,22 +685,19 @@ let mw=parseFloat(document.getElementById("mw").value)
 let cpw=parseFloat(document.getElementById("cpw").value)
 let cpg=parseFloat(document.getElementById("cpg").value)
 
-let TWO=parseFloat(document.getElementById("two").value)+273.15
-let TWI=parseFloat(document.getElementById("twi").value)+273.15
-let TGI=parseFloat(document.getElementById("tgi").value)+273.15
-let TGO=parseFloat(document.getElementById("tgo").value)+273.15
+let TWO=parseFloat(document.getElementById("two").value)
+let TWI=parseFloat(document.getElementById("twi").value)
+let TGI=parseFloat(document.getElementById("tgi").value)
+let TGO=parseFloat(document.getElementById("tgo").value)
 
 let result=
-mw*
-(cpw/cpg)*
-((TWO-TWI)/(TGI-TGO))
+mw*(cpw/cpg)*((TWO-TWI)/(TGI-TGO))
 
 document.getElementById("result").innerHTML=result.toFixed(4)
 
 }
 
 </script>
-
 
 </body>
 
