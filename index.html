@@ -676,7 +676,10 @@ let TWI = document.getElementById("twi").value
 let TGI = document.getElementById("tgi").value
 let TGO = document.getElementById("tgo").value
 
-if(!mw || !cpw || !cpg || !TWO || !TWI || !TGI || !TGO){
+if(
+mw === "" || cpw === "" || cpg === "" ||
+TWO === "" || TWI === "" || TGI === "" || TGO === ""
+){
 document.getElementById("energyResult").innerHTML = "กรอกค่าให้ครบ"
 return
 }
