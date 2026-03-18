@@ -1,1 +1,103 @@
 
+(((Hcv/4)*(3.5/(3.5+CO/CO2)) - Ocv/2) * (CO2+CO))
+
+let denominator =
+(1 + Hcv/4 - Ocv/2) *
+(CO2 + CO + n*HC)
+(1 + Hcv/4 - Ocv/2) * (CO2 + CO + n*HC)
+
+let lambda = numerator / denominator
+let lambda=numerator/denominator
+
+document.getElementById("lambda_result").innerHTML =
+"λ = " + lambda.toFixed(3)
+
+}
+
+
+
+function calcDensity(){
+
+let P=parseFloat(document.getElementById("P").value)
+let Tc=parseFloat(document.getElementById("T").value)
+let T=Tc+273.15
+
+let M=parseFloat(document.getElementById("M").value)
+
+let R=8.314
+
+let rho=(P*M)/(R*T)
+
+document.getElementById("density_result").innerHTML =
+"ρ = " + rho.toFixed(3) + " kg/m³"
+
+}
+
+
+
+function calcMfuel(){
+
+let V=parseFloat(document.getElementById("Vfuel").value)
+let rho=parseFloat(document.getElementById("rhofuel").value)
+
+let V_L_min=V/1000
+let m=(rho*V_L_min)/60
+
+document.getElementById("mfuel_result").innerHTML =
+"ṁfuel = " + m.toFixed(6) + " kg/s"
+
+}
+
+
+
+function calcMex(){
+
+let rho=parseFloat(document.getElementById("rho_ex").value)
+let V=parseFloat(document.getElementById("Vex").value)
+
+let m=rho*V
+
+document.getElementById("mex_result").innerHTML =
+"ṁexhaust = " + m.toFixed(3) + " kg/s"
+
+}
+
+</script>
+
+</body>
+</html>
+
+
+
+function calcDensity(){
+
+let P=parseFloat(document.getElementById("P").value)
+let Tc=parseFloat(document.getElementById("T").value)
+let T=Tc+273.15
+
+let M=parseFloat(document.getElementById("M").value)
+@@ -587,23 +275,20 @@ <h2>Exhaust Mass Flow</h2>
+
+}
+
+
+
+function calcMfuel(){
+
+let V=parseFloat(document.getElementById("Vfuel").value)
+let rho=parseFloat(document.getElementById("rhofuel").value)
+
+let V_L_min=V/1000
+
+let m=(rho*V_L_min)/60
+
+document.getElementById("mfuel_result").innerHTML =
+"ṁfuel = " + m.toFixed(6) + " kg/s"
+
+}
+
+
+
+function calcMex(){
+
+let rho=parseFloat(document.getElementById("rho_ex").value)
