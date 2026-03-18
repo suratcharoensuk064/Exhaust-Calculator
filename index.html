@@ -433,43 +433,38 @@ G′ =
 
 
 
-<div class="card">
+<h2>9. Exhaust Flow (Energy Balance)</h2>
 
-<h3>9. Exhaust Flow (Energy Balance)</h3>
+<p>
+ṁ<sub>G,EB</sub> = ṁ<sub>w</sub> (C<sub>pw</sub>/C<sub>pg</sub>) 
+( (T<sub>WO</sub> - T<sub>WI</sub>) / (T<sub>GI</sub> - T<sub>GO</sub>) )
+</p>
 
-\[
-\dot m_{G,EB} =
-m_w
-\left(\frac{C_{pw}}{C_{pg}}\right)
-\left(
-\frac{T_{WO}-T_{WI}}{T_{GI}-T_{GO}}
-\right)
-\]
+<label>Water Flow (LPM)</label>
+<input id="mw" type="number">
 
-<label>Water Flow (LPM)</label><br>
-<input id="mw"><br>
+<label>Cpw (kJ/kg-K)</label>
+<input id="cpw" type="number" value="4.186">
 
-<label>C<sub>pw</sub> (kJ/kg·K)</label><br>
-<input id="cpw"><br>
+<label>Cpg (kJ/kg-K)</label>
+<input id="cpg" type="number" value="1.005">
 
-<label>C<sub>pg</sub> (kJ/kg·K)</label><br>
-<input id="cpg"><br>
+<label>TWO (°C)</label>
+<input id="two" type="number">
 
-<label>T<sub>WO</sub> (°C)</label><br>
-<input id="two"><br>
+<label>TWI (°C)</label>
+<input id="twi" type="number">
 
-<label>T<sub>WI</sub> (°C)</label><br>
-<input id="twi"><br>
+<label>TGI (°C)</label>
+<input id="tgi" type="number">
 
-<label>T<sub>GI</sub> (°C)</label><br>
-<input id="tgi"><br>
+<label>TGO (°C)</label>
+<input id="tgo" type="number">
 
-<label>T<sub>GO</sub> (°C)</label><br>
-<input id="tgo"><br>
-
+<br>
 <button onclick="calcEnergy()">Calculate</button>
 
-<p class="result" id="energyResult"></p>
+<p id="energyResult"></p>
 
 </div>
 
