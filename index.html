@@ -666,54 +666,5 @@ m.toFixed(6)
 
 
 
-function calcEnergy(){
-
-// ===== รับค่า =====
-let mw = parseFloat(document.getElementById("mw").value)
-let cpw = parseFloat(document.getElementById("cpw").value)
-let cpg = parseFloat(document.getElementById("cpg").value)
-
-let TWO = parseFloat(document.getElementById("two").value)
-let TWI = parseFloat(document.getElementById("twi").value)
-let TGI = parseFloat(document.getElementById("tgi").value)
-let TGO = parseFloat(document.getElementById("tgo").value)
-
-// ===== ตรวจ input =====
-if(isNaN(mw)||isNaN(cpw)||isNaN(cpg)||isNaN(TWO)||isNaN(TWI)||isNaN(TGI)||isNaN(TGO)){
-document.getElementById("energyResult").innerHTML = "กรอกค่าให้ครบ"
-return
-}
-
-// ===== แปลงหน่วย =====
-
-// °C → K
-TWO += 273.15
-TWI += 273.15
-TGI += 273.15
-TGO += 273.15
-
-// LPM → kg/s (น้ำ 1 L ≈ 1 kg)
-let mw_kg = mw / 60
-
-// ===== ตรวจ ΔT =====
-let dT_water = TWO - TWI
-let dT_gas = TGI - TGO
-
-if(dT_gas === 0){
-document.getElementById("energyResult").innerHTML = "Error: ΔT gas = 0"
-return
-}
-
-// ===== คำนวณ =====
-let mG = mw_kg * (cpw / cpg) * (dT_water / dT_gas)
-
-// ===== แสดงผล =====
-document.getElementById("energyResult").innerHTML =
-"ṁ<sub>G,EB</sub> = " + mG.toFixed(6) + " kg/s"
-
-}
-
-
-
   
 </script>
