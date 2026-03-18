@@ -666,5 +666,45 @@ m.toFixed(6)
 
 
 
+function calcEnergy(){
+
+let mw = document.getElementById("mw").value
+let cpw = document.getElementById("cpw").value
+let cpg = document.getElementById("cpg").value
+let TWO = document.getElementById("two").value
+let TWI = document.getElementById("twi").value
+let TGI = document.getElementById("tgi").value
+let TGO = document.getElementById("tgo").value
+
+if(!mw || !cpw || !cpg || !TWO || !TWI || !TGI || !TGO){
+document.getElementById("energyResult").innerHTML = "กรอกค่าให้ครบ"
+return
+}
+
+mw = parseFloat(mw)
+cpw = parseFloat(cpw)
+cpg = parseFloat(cpg)
+TWO = parseFloat(TWO) + 273.15
+TWI = parseFloat(TWI) + 273.15
+TGI = parseFloat(TGI) + 273.15
+TGO = parseFloat(TGO) + 273.15
+
+let mw_kg = mw / 60
+
+let dTg = TGI - TGO
+if(dTg === 0){
+document.getElementById("energyResult").innerHTML = "ΔT gas = 0"
+return
+}
+
+let result = mw_kg * (cpw/cpg) * ((TWO-TWI)/dTg)
+
+document.getElementById("energyResult").innerHTML =
+"ṁ<sub>G,EB</sub> = " + result.toFixed(6) + " kg/s"
+
+}
+
+
+
   
 </script>
