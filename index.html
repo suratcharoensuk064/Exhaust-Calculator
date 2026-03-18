@@ -81,7 +81,30 @@ color:#2f80ed;
 </div>
 
 <div class="card">
-<h3>2. Lambda</h3>
+<h3>2. Lambda (Brettschneider)</h3>
+
+<div style="background:#f9fafc;padding:10px;border-radius:8px;margin-bottom:10px">
+
+[
+\lambda =
+\frac{
+CO_2+\frac{CO}{2}+O2+\frac{NO}{2}
++
+\left(
+\frac{H{cv}}{4}
+\frac{3.5}{3.5+\frac{CO}{CO2}}
+-
+\frac{O{cv}}{2}
+\right)(CO2+CO)
+}{
+\left(
+1+\frac{H{cv}}{4}-\frac{O_{cv}}{2}
+\right)(CO_2+CO+6HC)
+}
+]
+
+</div>
+
 <div class="grid">
 <input id="co2" placeholder="CO2 (%)">
 <input id="co" placeholder="CO (%)">
@@ -91,10 +114,11 @@ color:#2f80ed;
 <input id="hcv" placeholder="Hcv">
 <input id="ocv" placeholder="Ocv">
 </div>
+
 <button onclick="calcLambda()">Calculate</button>
+
 <p class="result" id="lambda_out"></p>
 </div>
-
 <div class="card">
 <h3>3. Density</h3>
 <div class="grid">
