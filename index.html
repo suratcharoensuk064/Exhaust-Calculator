@@ -416,39 +416,34 @@ G′ =
 
   
 
-<label>ρ (kg/m³)</label>
-<input id="rho_input">
+<h2>Exhaust Flow (Energy Balance)</h2>
 
-<label>\(\dot{V}_{actual}\) (m³/s)</label>
-<input id="vactual_input">
-
-<button onclick="calcMexhaust()">Calculate</button>
-
-<p class="result">
-
-\(\dot{m}_{exhaust}\) =
-<span id="mexhaust"></span> kg/s
-
-</p>
-
-</div>
-
-
-
+<label>Water Flow (LPM)</label>
 <input id="mw" type="number">
-<input id="cpw" type="number">
-<input id="cpg" type="number">
+
+<label>Cpw (kJ/kg·K)</label>
+<input id="cpw" type="number" value="4.186">
+
+<label>Cpg (kJ/kg·K)</label>
+<input id="cpg" type="number" value="1.005">
+
+<label>TWO (°C)</label>
 <input id="two" type="number">
+
+<label>TWI (°C)</label>
 <input id="twi" type="number">
+
+<label>TGI (°C)</label>
 <input id="tgi" type="number">
+
+<label>TGO (°C)</label>
 <input id="tgo" type="number">
 
 <button onclick="calcEnergy()">Calculate</button>
 
 <p id="energyResult"></p>
 
-</div>
-
+</div>  
 
   
 <script>
