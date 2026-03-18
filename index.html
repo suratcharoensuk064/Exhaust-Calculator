@@ -2,27 +2,21 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Exhaust Gas Flow Calculator</title>
+<title>Exhaust Gas Calculator</title>
 
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <style>
 body{
-font-family:Arial;
-background:#f4f6f9;
+font-family:Segoe UI;
+background:#eef2f7;
+margin:0;
 }
 
 .container{
 max-width:900px;
 margin:auto;
-}
-
-.section{
-background:white;
 padding:20px;
-margin-bottom:25px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 h1{
@@ -30,304 +24,140 @@ text-align:center;
 margin-bottom:30px;
 }
 
+.card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:12px;
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
 label{
-display:block;
-margin-top:10px;
+font-size:14px;
+color:#333;
 }
 
 input{
-width:220px;
-padding:6px;
-margin-top:5px;
+width:100%;
+padding:7px;
+border:1px solid #ccc;
+border-radius:6px;
 }
 
 button{
-margin-top:15px;
-padding:8px 16px;
+margin-top:10px;
+padding:10px;
+width:100%;
 background:#2f80ed;
 color:white;
 border:none;
-border-radius:5px;
+border-radius:6px;
 cursor:pointer;
 }
 
 .result{
-margin-top:15px;
+margin-top:10px;
 font-weight:bold;
+color:#2f80ed;
 }
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
-
-<h1>Exhaust Gas Flow Calculator</h1>
+<h1>Exhaust Gas Calculator</h1>
 
 <!-- Fuel -->
-<div class="section">
-<h3>1. Fuel Flow</h3>
+<div class="card">
+<h3>Fuel Flow</h3>
 
 \[
 \dot{m}_{fuel}=\frac{\dot{V}_{fuel}\rho_{fuel}}{60\times10^6}
 \]
 
+<div class="grid">
+<div>
 <label>Fuel Flow (ml/min)</label>
 <input id="vfuel">
+</div>
 
-<label>Fuel Density (kg/L)</label>
-<input id="rho_fuel">
+<div>
+<label>Density (kg/L)</label>
+<input id="rho">
+</div>
+</div>
 
 <button onclick="calcFuel()">Calculate</button>
-
-<p class="result">ṁfuel = <span id="mfuel"></span> kg/s</p>
+<p class="result" id="mfuel"></p>
 </div>
 
 <!-- Lambda -->
-<div class="section">
-<h3>2. Lambda</h3>
+<div class="card">
+<h3>Lambda</h3>
 
-\[
-\lambda =
-\frac{
-CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
-+
-\left(
-\frac{H_{cv}}{4}
-\frac{3.5}{3.5+\frac{CO}{CO_2}}
--
-\frac{O_{cv}}{2}
-\right)(CO_2+CO)
-}{
-\left(
-1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2}
-\right)(CO_2+CO+6HC)
-}
-\]
-
-<label>CO₂ (%)</label>
-<input id="co2">
-
-<label>CO (%)</label>
-<input id="co">
-
-<label>O₂ (%)</label>
-<input id="o2">
-
-<label>HC (ppm)</label>
-<input id="hc">
-
-<label>NOx (ppm)</label>
-<input id="nox">
-
-<label>Hcv</label>
-<input id="hcv">
-
-<label>Ocv</label>
-<input id="ocv">
+<div class="grid">
+<input placeholder="CO2 %" id="co2">
+<input placeholder="CO %" id="co">
+<input placeholder="O2 %" id="o2">
+<input placeholder="HC ppm" id="hc">
+<input placeholder="NOx ppm" id="nox">
+<input placeholder="Hcv" id="hcv">
+<input placeholder="Ocv" id="ocv">
+</div>
 
 <button onclick="calcLambda()">Calculate</button>
-
-<p class="result">λ = <span id="lambda"></span></p>
-</div>
-
-<!-- Density -->
-<div class="section">
-<h3>3. Exhaust Density</h3>
-
-\[
-\rho=\frac{PM}{RT}
-\]
-
-<label>P (Pa)</label>
-<input id="pressure">
-
-<label>T (°C)</label>
-<input id="temp">
-
-<label>M (kg/mol)</label>
-<input id="mw">
-
-<button onclick="calcDensity()">Calculate</button>
-
-<p class="result">ρ = <span id="rho"></span> kg/m³</p>
-</div>
-
-<!-- A0 -->
-<div class="section">
-<h3>4. A₀</h3>
-
-\[
-A_0=\frac{22.4}{0.21}\left(\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32}\right)
-\]
-
-<label>C</label>
-<input id="C">
-
-<label>H</label>
-<input id="H">
-
-<label>O</label>
-<input id="O">
-
-<label>S</label>
-<input id="S">
-
-<button onclick="calcA0()">Calculate</button>
-
-<p class="result">A₀ = <span id="A0"></span></p>
-</div>
-
-<!-- G -->
-<div class="section">
-<h3>5. G'</h3>
-
-\[
-G'=(\lambda-0.21)A_0+22.4\left(\frac{C}{12}+\frac{S}{32}+\frac{N}{28}\right)
-\]
-
-<label>λ</label>
-<input id="lambda_input">
-
-<label>A₀</label>
-<input id="A0_input">
-
-<label>C</label>
-<input id="C_g">
-
-<label>S</label>
-<input id="S_g">
-
-<label>N</label>
-<input id="N_g">
-
-<button onclick="calcG()">Calculate</button>
-
-<p class="result">G' = <span id="G"></span></p>
-</div>
-
-<!-- Vstd -->
-<div class="section">
-<h3>6. Vstd</h3>
-
-\[
-V_{std}=G' \dot{m}_{fuel}
-\]
-
-<label>G'</label>
-<input id="gprime">
-
-<label>ṁfuel</label>
-<input id="mfuel_input">
-
-<button onclick="calcVstd()">Calculate</button>
-
-<p class="result">Vstd = <span id="vstd"></span> m³/s</p>
-</div>
-
-<!-- Vactual -->
-<div class="section">
-<h3>7. Vactual</h3>
-
-\[
-V_{actual}=V_{std}\frac{T}{273.15}
-\]
-
-<label>Vstd</label>
-<input id="vstd_input">
-
-<label>T (°C)</label>
-<input id="tactual">
-
-<button onclick="calcVactual()">Calculate</button>
-
-<p class="result">Vactual = <span id="vactual"></span> m³/s</p>
-</div>
-
-<!-- Exhaust -->
-<div class="section">
-<h3>8. Exhaust Flow</h3>
-
-<button onclick="calcExhaust()">Calculate</button>
-
-<p class="result" id="exhaust"></p>
+<p class="result" id="lambda"></p>
 </div>
 
 </div>
 
 <script>
 
-let mfuel=0, lambda=0, rho=0, A0=0, G=0, Vstd=0, Vactual=0
-
+// ===== Fuel =====
 function calcFuel(){
-let v=+vfuel.value
-let r=+rho_fuel.value
-mfuel=(v*r)/(60*1e6)
-mfuelSpan=mfuel.toFixed(7)
-document.getElementById("mfuel").innerText=mfuelSpan
+let V=Number(vfuel.value)
+let rho=Number(document.getElementById("rho").value)
+
+let mf=(V*rho)/(60*1e6)
+
+document.getElementById("mfuel").innerText =
+"ṁfuel = "+mf.toExponential(6)+" kg/s"
 }
 
+// ===== Lambda =====
 function calcLambda(){
-let co2=+co2.value
-let co=+co.value
-let o2=+o2.value
-let hc=(+hc.value)/10000
-let no=(+nox.value)/10000
-let hcv=+hcv.value
-let ocv=+ocv.value
 
-let num=co2+co/2+o2+no/2+((hcv/4)*(3.5/(3.5+(co/co2)))-ocv/2)*(co2+co)
-let den=(1+hcv/4-ocv/2)*(co2+co+6*hc)
+let co2=Number(co2.value)
+let co=Number(co.value)
+let o2=Number(o2.value)
+let hc=Number(hc.value)/10000
+let no=Number(nox.value)/10000
+let hcv=Number(hcv.value)
+let ocv=Number(ocv.value)
 
-lambda=num/den
-document.getElementById("lambda").innerText=lambda.toFixed(4)
+if([co2,co,o2,hc,no,hcv,ocv].some(v=>isNaN(v))){
+alert("กรอกค่าให้ครบ")
+return
 }
 
-function calcDensity(){
-let P=+pressure.value
-let T=(+temp.value)+273.15
-let M=+mw.value
-rho=(P*M)/(8.314*T)
-document.getElementById("rho").innerText=rho.toFixed(3)
-}
+let numerator=
+co2 + co/2 + o2 + no/2 +
+((hcv/4)*(3.5/(3.5+(co/co2))) - ocv/2)*(co2+co)
 
-function calcA0(){
-let c=+C.value
-let h=+H.value
-let o=+O.value
-let s=+S.value
-A0=(22.4/0.21)*((c/12)+(h/4)-(o/8)+(s/32))
-document.getElementById("A0").innerText=A0.toFixed(3)
-}
+let denominator=
+(1 + hcv/4 - ocv/2)*(co2 + co + 6*hc)
 
-function calcG(){
-let l=+lambda_input.value
-let a=+A0_input.value
-let c=+C_g.value
-let s=+S_g.value
-let n=+N_g.value
-G=(l-0.21)*a+22.4*((c/12)+(s/32)+(n/28))
-document.getElementById("G").innerText=G.toFixed(3)
-}
+let lambda=numerator/denominator
 
-function calcVstd(){
-let g=+gprime.value
-let mf=+mfuel_input.value
-Vstd=g*mf
-document.getElementById("vstd").innerText=Vstd.toFixed(6)
-}
-
-function calcVactual(){
-let v=+vstd_input.value
-let T=(+tactual.value)+273.15
-Vactual=v*(T/273.15)
-document.getElementById("vactual").innerText=Vactual.toFixed(6)
-}
-
-function calcExhaust(){
-let m=Vactual*rho
-document.getElementById("exhaust").innerText="ṁexhaust = "+m.toFixed(6)+" kg/s"
+document.getElementById("lambda").innerText =
+"λ = "+lambda.toFixed(4)
 }
 
 </script>
