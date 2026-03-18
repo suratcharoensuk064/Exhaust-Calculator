@@ -414,6 +414,8 @@ G′ =
 
 </div>
 
+  
+
 <label>ρ (kg/m³)</label>
 <input id="rho_input">
 
@@ -433,35 +435,14 @@ G′ =
 
 
 
-<h2>9. Exhaust Flow (Energy Balance)</h2>
-
-<p>
-ṁ<sub>G,EB</sub> = ṁ<sub>w</sub> (C<sub>pw</sub>/C<sub>pg</sub>) 
-( (T<sub>WO</sub> - T<sub>WI</sub>) / (T<sub>GI</sub> - T<sub>GO</sub>) )
-</p>
-
-<label>Water Flow (LPM)</label>
 <input id="mw" type="number">
-
-<label>Cpw (kJ/kg-K)</label>
-<input id="cpw" type="number" value="4.186">
-
-<label>Cpg (kJ/kg-K)</label>
-<input id="cpg" type="number" value="1.005">
-
-<label>TWO (°C)</label>
+<input id="cpw" type="number">
+<input id="cpg" type="number">
 <input id="two" type="number">
-
-<label>TWI (°C)</label>
 <input id="twi" type="number">
-
-<label>TGI (°C)</label>
 <input id="tgi" type="number">
-
-<label>TGO (°C)</label>
 <input id="tgo" type="number">
 
-<br>
 <button onclick="calcEnergy()">Calculate</button>
 
 <p id="energyResult"></p>
@@ -663,50 +644,37 @@ m.toFixed(6)
 
 function calcEnergy(){
 
-let mw = document.getElementById("mw").value.trim()
-let cpw = document.getElementById("cpw").value.trim()
-let cpg = document.getElementById("cpg").value.trim()
-let TWO = document.getElementById("two").value.trim()
-let TWI = document.getElementById("twi").value.trim()
-let TGI = document.getElementById("tgi").value.trim()
-let TGO = document.getElementById("tgo").value.trim()
+let mw  = document.getElementById("mw").value
+let cpw = document.getElementById("cpw").value
+let cpg = document.getElementById("cpg").value
+let TWO = document.getElementById("two").value
+let TWI = document.getElementById("twi").value
+let TGI = document.getElementById("tgi").value
+let TGO = document.getElementById("tgo").value
 
-// ✅ เช็คค่าว่าง (ไม่มั่วแล้ว)
-if([mw,cpw,cpg,TWO,TWI,TGI,TGO].some(v => v === "")){
-document.getElementById("energyResult").innerHTML = "❌ กรอกค่าให้ครบ"
+if(mw===""cpw===""cpg===""TWO===""TWI===""TGI===""TGO===""){
+document.getElementById("energyResult").innerHTML="กรอกค่าให้ครบ"
 return
 }
 
-// แปลงเป็นตัวเลข
-mw = parseFloat(mw)
-cpw = parseFloat(cpw)
-cpg = parseFloat(cpg)
-TWO = parseFloat(TWO)
-TWI = parseFloat(TWI)
-TGI = parseFloat(TGI)
-TGO = parseFloat(TGO)
+mw=parseFloat(mw)
+cpw=parseFloat(cpw)
+cpg=parseFloat(cpg)
+TWO=parseFloat(TWO)+273.15
+TWI=parseFloat(TWI)+273.15
+TGI=parseFloat(TGI)+273.15
+TGO=parseFloat(TGO)+273.15
 
-// ✅ LPM → kg/s (น้ำ)
-let mw_kg = mw / 60   // ใช้ได้เลย (ρน้ำ≈1000)
+let dTg=TGI-TGO
 
-// ✅ °C → K
-TWO += 273.15
-TWI += 273.15
-TGI += 273.15
-TGO += 273.15
-
-let dTg = TGI - TGO
-
-if(dTg === 0){
-document.getElementById("energyResult").innerHTML = "❌ ΔT gas = 0"
+if(dTg===0){
+document.getElementById("energyResult").innerHTML="ΔT gas = 0"
 return
 }
 
-// ✅ Energy balance
-let result = mw_kg * (cpw / cpg) * ((TWO - TWI) / dTg)
+let result=(mw/60)(cpw/cpg)((TWO-TWI)/dTg)
 
-document.getElementById("energyResult").innerHTML =
-"ṁ<sub>G,EB</sub> = " + result.toFixed(6) + " kg/s"
+document.getElementById("energyResult").innerHTML=result.toFixed(6)+" kg/s"
 }
 
 
