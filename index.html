@@ -1,10 +1,13 @@
+```html
 <!DOCTYPE html>
 <html>
 
 <head>
 
 <meta charset="UTF-8">
+<title>Exhaust Gas Calculator</title>
 
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <title>Exhaust Gas Flow Calculator</title>
 
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -15,17 +18,16 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
 
 <style>
 
-body{
-font-family:Arial;
-background:#f4f6f8;
-padding:40px;
+@@ -17,389 +22,607 @@
 }
 
 .container{
+max-width:1000px;
 max-width:900px;
 margin:auto;
 }
 
+.card{
 h1{
 text-align:center;
 margin-bottom:40px;
@@ -35,16 +37,20 @@ margin-bottom:40px;
 
 background:white;
 padding:25px;
+margin-bottom:25px;
 margin-bottom:30px;
 
 border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
 box-shadow:0 2px 8px rgba(0,0,0,0.1);
 
 }
 
+h1{
 .formula{
 
 text-align:center;
+margin-bottom:40px;
 font-size:18px;
 margin-bottom:20px;
 
@@ -58,18 +64,22 @@ margin-top:10px;
 }
 
 input{
+width:200px;
 
 width:220px;
 padding:6px;
+margin:4px 0;
 margin-top:5px;
 
 }
 
 button{
+padding:8px 14px;
 
 margin-top:15px;
 padding:8px 16px;
 background:#2f80ed;
+color:white;
 border:none;
 color:white;
 border-radius:5px;
@@ -78,6 +88,7 @@ cursor:pointer;
 }
 
 .result{
+margin-top:10px;
 
 margin-top:15px;
 font-weight:bold;
@@ -93,32 +104,43 @@ font-weight:bold;
 
 <div class="container">
 
+<h1>Exhaust Gas Calculator</h1>
 <h1>Exhaust Gas Flow Calculator</h1>
 
 
 <!-- Fuel -->
 
+<!-- Fuel Flow -->
 <div class="section">
 
+<div class="card">
 <h3>1. Fuel Mass Flow</h3>
 
+<h3>1. Fuel Flow</h3>
 <div class="formula">
 
 \[
+\dot m_{fuel} =
+\frac{\dot V_{fuel}\rho_{fuel}}{60\times10^6}
 \dot{m}_{fuel}=
 \frac{\dot{V}_{fuel}\rho_{fuel}}{60\times10^{6}}
 \]
 
+<label>Fuel Flow (ml/min)</label><br>
+<input id="vfuel"><br>
 </div>
 
 <label>\(\dot{V}_{fuel}\) (ml/min)</label>
 <input id="vfuel">
 
+<label>Fuel Density (kg/L)</label><br>
+<input id="rhofuel"><br>
 <label>\(\rho_{fuel}\) (kg/L)</label>
 <input id="rho_fuel">
 
 <button onclick="calcFuel()">Calculate</button>
 
+<p class="result" id="fuelResult"></p>
 <p class="result">
 
 \(\dot{m}_{fuel}\) =
@@ -132,12 +154,16 @@ font-weight:bold;
 
 <!-- Lambda -->
 
+<div class="card">
 <div class="section">
 
 <h3>2. Lambda</h3>
 
+<h3>2. Lambda (λ)</h3>
 <div class="formula">
 
+<label>CO₂ (%)</label><br>
+<input id="co2"><br>
 \[
 \lambda =
 \frac{
@@ -163,26 +189,39 @@ CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
 <label>CO₂ (%)</label>
 <input id="co2">
 
+<label>CO (%)</label><br>
+<input id="co"><br>
 <label>CO (%)</label>
 <input id="co">
 
+<label>O₂ (%)</label><br>
+<input id="o2"><br>
 <label>O₂ (%)</label>
 <input id="o2">
 
+<label>HC (ppm)</label><br>
+<input id="hc"><br>
 <label>HC (ppm)</label>
 <input id="hc">
 
+<label>NO (%)</label><br>
+<input id="no"><br>
 <label>NOₓ (ppm)</label>
 <input id="nox">
 
+<label>Hcv</label><br>
+<input id="hcv"><br>
 <label>Hcv</label>
 <input id="hcv">
 
+<label>Ocv</label><br>
+<input id="ocv"><br>
 <label>Ocv</label>
 <input id="ocv">
 
 <button onclick="calcLambda()">Calculate</button>
 
+<p class="result" id="lambdaResult"></p>
 <p class="result">
 
 λ =
@@ -196,29 +235,39 @@ CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
 
 <!-- Density -->
 
+<div class="card">
 <div class="section">
 
+<h3>3. Exhaust Gas Density</h3>
 <h3>3. Exhaust Density</h3>
 
 <div class="formula">
 
 \[
+\rho = \frac{PM}{RT}
 \rho=\frac{PM}{RT}
 \]
 
+<label>Pressure (Pa)</label><br>
+<input id="P"><br>
 </div>
 
 <label>P (Pa)</label>
 <input id="pressure">
 
+<label>Molecular Weight (g/mol)</label><br>
+<input id="M"><br>
 <label>T (°C)</label>
 <input id="temp">
 
+<label>Temperature (°C)</label><br>
+<input id="T"><br>
 <label>M (kg/mol)</label>
 <input id="mw">
 
 <button onclick="calcDensity()">Calculate</button>
 
+<p class="result" id="rhoResult"></p>
 <p class="result">
 
 ρ =
@@ -229,14 +278,22 @@ CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
 </div>
 
 
+<!-- A0 -->
 
+<div class="card">
 <div class="section">
 
+<h3>4. Stoichiometric Air Requirement (A₀)</h3>
 <h3>2. Theoretical Air Requirement</h3>
 
 <div class="formula">
 
 \[
+A_0=
+\frac{22.4}{0.21}
+\left(
+\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32}
+\right)
 A_0 =
 \dfrac{22.4}{0.21}
 \left\{
@@ -248,6 +305,8 @@ A_0 =
 \right\}
 \]
 
+<label>C</label><br>
+<input id="C"><br>
 </div>
 
 <form onsubmit="calcA0(); return false;">
@@ -258,16 +317,24 @@ A_0 =
 <label>H (Hydrogen in fuel)</label><br>
 <input type="number" id="H" step="any"><br><br>
 
+<label>H</label><br>
+<input id="H"><br>
 <label>O (Oxygen in fuel)</label><br>
 <input type="number" id="O" step="any"><br><br>
 
+<label>O</label><br>
+<input id="O"><br>
 <label>S (Sulfur in fuel)</label><br>
 <input type="number" id="S" step="any"><br><br>
 
+<label>S</label><br>
+<input id="S"><br>
 <button type="submit">Calculate</button>
 
+<button onclick="calcA0()">Calculate</button>
 </form>
 
+<p class="result" id="A0Result"></p>
 <p class="result">
 
 \(A_0\) = <span id="A0"> </span> m³/kg fuel
@@ -280,10 +347,13 @@ A_0 =
   
 <div class="section">
 
+<!-- G' -->
 <h3>3. Dry Exhaust Gas Volume</h3>
 
+<div class="card">
 <div class="formula">
 
+<h3>5. Dry Exhaust Gas Volume (G')</h3>
 \[
 G' =
 (\lambda-0.21)A_0
@@ -306,6 +376,8 @@ G' =
 <label>A₀ (m³N/kg fuel)</label>
 <input id="A0_input">
 
+<label>N</label><br>
+<input id="N"><br>
 <label>C (Carbon in fuel)</label>
 <input id="C_g">
 
@@ -317,6 +389,7 @@ G' =
 
 <button onclick="calcG()">Calculate</button>
 
+<p class="result" id="GResult"></p>
 <p class="result">
 
 G′ =
@@ -327,16 +400,20 @@ G′ =
 </div>
 
 
+<!-- Vstd -->
   
 <!-- VSTD -->
 
+<div class="card">
 <div class="section">
 
+<h3>6. Standard Exhaust Volume</h3>
 <h3>4. Exhaust Volume Flow (STD)</h3>
 
 <div class="formula">
 
 \[
+V_{std} = G' \times \dot m_{fuel}
 \dot{V}_{G,STD}=G'\dot{m}_{fuel}
 \]
 
@@ -350,6 +427,7 @@ G′ =
 
 <button onclick="calcVstd()">Calculate</button>
 
+<p class="result" id="VstdResult"></p>
 <p class="result">
 
 \(\dot{V}_{G,STD}\) =
@@ -363,70 +441,73 @@ G′ =
 
 <!-- Vactual -->
 
+<div class="card">
 <div class="section">
 
+<h3>7. Actual Exhaust Volume</h3>
 <h3>5. Exhaust Volume Flow (Actual)</h3>
 
 <div class="formula">
 
 \[
+V_{actual} = V_{std}\left(\frac{T_{actual}}{T_{std}}\right)
 \dot{V}_{G,actual}
 =
 \dot{V}_{G,STD}
 \frac{T_{actual}}{T_{STD}}
 \]
 
+<label>Tactual (°C)</label><br>
+<input id="Tactual"><br>
+
+<button onclick="calcVactual()">Calculate</button>
+
+<p class="result" id="VactualResult"></p>
+
 </div>
 
 <label>\(\dot{V}_{G,STD}\) (m³/s)</label>
 <input id="vstd_input">
 
+<!-- Exhaust Flow Volume -->
 <label>Tactual (K)</label>
 <input id="tactual">
 
+<div class="card">
 <p>TSTD = 273.15 K</p>
 
 <button onclick="calcVactual()">Calculate</button>
 
+<h3>8. Exhaust Flow (V × Density)</h3>
 <p class="result">
 
+<button onclick="calcExhaust()">Calculate</button>
 \(\dot{V}_{G,actual}\) =
 <span id="vactual"></span> m³/s
 
+<p class="result" id="ExhaustResult"></p>
 </p>
 
 </div>
 
 
-
-<!-- Mexhaust -->
-
-<div class="section">
-
-<h3>6. Exhaust Mass Flow</h3>
-
-<div class="formula">
-
-\[
-\dot{m}_{exhaust}=
-\rho\dot{V}
-\]
-
-</div>
-
-  
   
 <script>
 
+let mfuel,lambda,rho,A0,G,Vstd,Vactual
 
 function calcFuel(){
 
+let V=parseFloat(vfuel.value)
+let rho=parseFloat(rhofuel.value)
 let vfuel=parseFloat(document.getElementById("vfuel").value)
 
 let rho=parseFloat(document.getElementById("rho_fuel").value)
 
+mfuel=(V*rho)/(60*1000000)
 rho=rho*1000
 
+fuelResult.innerHTML="ṁfuel = "+mfuel.toFixed(6)+" kg/s"
 let mfuel=(vfuel*rho)/(60*1000000)
 
 document.getElementById("mfuel").innerText=
@@ -438,6 +519,11 @@ mfuel.toFixed(7)
 
 function calcLambda(){
 
+let co2=parseFloat(co2.value)
+let co=parseFloat(co.value)
+let o2=parseFloat(o2.value)
+let hc=parseFloat(hc.value)/10000
+let no=parseFloat(no.value)
 let co2=parseFloat(document.getElementById("co2").value)
 
 let co=parseFloat(document.getElementById("co").value)
@@ -469,8 +555,12 @@ let denominator=
 
 let lambda=numerator/denominator
 
+let hcv=parseFloat(hcv.value)
+let ocv=parseFloat(ocv.value)
 
+lambda=(co2+co/2+o2+no/2)/((1+hcv/4-ocv/2)*(co2+co+hc))
 
+lambdaResult.innerHTML="λ = "+lambda.toFixed(3)
 document.getElementById("lambda").innerText=
 lambda.toFixed(3)
 
@@ -480,6 +570,9 @@ lambda.toFixed(3)
 
 function calcDensity(){
 
+let P=parseFloat(document.getElementById("P").value)
+let M=parseFloat(document.getElementById("M").value)/1000
+let T=parseFloat(document.getElementById("T").value)+273.15
 let P=parseFloat(document.getElementById("pressure").value)
 
 let T=parseFloat(document.getElementById("temp").value)+273.15
@@ -488,7 +581,9 @@ let MW=parseFloat(document.getElementById("mw").value)
 
 let R=8.314
 
+rho=(P*M)/(8.314*T)
 
+rhoResult.innerHTML="ρ = "+rho.toFixed(3)+" kg/m³"
 
 let rho=(P*MW)/(R*T)
 
@@ -503,11 +598,16 @@ rho.toFixed(3)
   
 function calcA0(){
 
+let C=parseFloat(C.value)
+let H=parseFloat(H.value)
+let O=parseFloat(O.value)
+let S=parseFloat(S.value)
 let C=parseFloat(document.getElementById("C").value)
 let H=parseFloat(document.getElementById("H").value)
 let O=parseFloat(document.getElementById("O").value)
 let S=parseFloat(document.getElementById("S").value)
 
+A0=(22.4/0.21)*((C/12)+(H/4)-(O/8)+(S/32))
 let A0=(22.4/0.21)*
 (
 (C/12) +
@@ -515,6 +615,7 @@ let A0=(22.4/0.21)*
 (S/32)
 )
 
+A0Result.innerHTML="A₀ = "+A0.toFixed(3)
 document.getElementById("A0").innerText =
 A0.toFixed(2)
 
@@ -524,6 +625,9 @@ A0.toFixed(2)
   
 function calcG(){
 
+let C=parseFloat(C.value)
+let S=parseFloat(S.value)
+let N=parseFloat(N.value)
 let lambda=parseFloat(document.getElementById("lambda_input").value)
 
 let A0=parseFloat(document.getElementById("A0_input").value)
@@ -542,7 +646,9 @@ let G=
 22.4*((C/12)+(S/32)+(N/28))
 
 
+G=(lambda-0.21)*A0+22.4*((C/12)+(S/32)+(N/28))
 
+GResult.innerHTML="G' = "+G.toFixed(3)+" m³/kg fuel"
 document.getElementById("G_result").innerText=
 G.toFixed(3)
 
@@ -552,6 +658,7 @@ G.toFixed(3)
   
 function calcVstd(){
 
+Vstd=G*mfuel
 let g=parseFloat(document.getElementById("gprime").value)
 
 let mf=parseFloat(document.getElementById("mfuel_input").value)
@@ -560,6 +667,7 @@ let mf=parseFloat(document.getElementById("mfuel_input").value)
 
 let v=g*mf
 
+VstdResult.innerHTML="Vstd = "+Vstd.toFixed(4)+" m³/s"
 
 
 document.getElementById("vstd").innerText=
@@ -571,15 +679,22 @@ v.toFixed(6)
 
 function calcVactual(){
 
+let Tactual=parseFloat(Tactual.value)+273.15
 let vstd=parseFloat(document.getElementById("vstd_input").value)
 
+Vactual=Vstd*(Tactual/273.15)
 let T=parseFloat(document.getElementById("tactual").value)
 
+VactualResult.innerHTML="Vactual = "+Vactual.toFixed(4)+" m³/s"
 
+}
 
+function calcExhaust(){
 let v=vstd*(T/273.15)
 
+let result=Vactual*rho
 
+ExhaustResult.innerHTML="ṁexhaust = "+result.toFixed(4)+" kg/s"
 
 document.getElementById("vactual").innerText=
 v.toFixed(6)
@@ -588,23 +703,4 @@ v.toFixed(6)
 
 
 
-function calcMexhaust(){
-
-let rho=parseFloat(document.getElementById("rho_input").value)
-
-let v=parseFloat(document.getElementById("vactual_input").value)
-
-
-
-let m=rho*v
-
-
-
-document.getElementById("mexhaust").innerText=
-m.toFixed(6)
-
-}
-
-
-  
 </script>
