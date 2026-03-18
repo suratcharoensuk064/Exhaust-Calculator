@@ -663,43 +663,50 @@ m.toFixed(6)
 
 function calcEnergy(){
 
-let mw = document.getElementById("mw").value
-let cpw = document.getElementById("cpw").value
-let cpg = document.getElementById("cpg").value
-let TWO = document.getElementById("two").value
-let TWI = document.getElementById("twi").value
-let TGI = document.getElementById("tgi").value
-let TGO = document.getElementById("tgo").value
+let mw = document.getElementById("mw").value.trim()
+let cpw = document.getElementById("cpw").value.trim()
+let cpg = document.getElementById("cpg").value.trim()
+let TWO = document.getElementById("two").value.trim()
+let TWI = document.getElementById("twi").value.trim()
+let TGI = document.getElementById("tgi").value.trim()
+let TGO = document.getElementById("tgo").value.trim()
 
-if(
-mw === "" || cpw === "" || cpg === "" ||
-TWO === "" || TWI === "" || TGI === "" || TGO === ""
-){
-document.getElementById("energyResult").innerHTML = "กรอกค่าให้ครบ"
+// ✅ เช็คค่าว่าง (ไม่มั่วแล้ว)
+if([mw,cpw,cpg,TWO,TWI,TGI,TGO].some(v => v === "")){
+document.getElementById("energyResult").innerHTML = "❌ กรอกค่าให้ครบ"
 return
 }
 
+// แปลงเป็นตัวเลข
 mw = parseFloat(mw)
 cpw = parseFloat(cpw)
 cpg = parseFloat(cpg)
-TWO = parseFloat(TWO) + 273.15
-TWI = parseFloat(TWI) + 273.15
-TGI = parseFloat(TGI) + 273.15
-TGO = parseFloat(TGO) + 273.15
+TWO = parseFloat(TWO)
+TWI = parseFloat(TWI)
+TGI = parseFloat(TGI)
+TGO = parseFloat(TGO)
 
-let mw_kg = mw / 60
+// ✅ LPM → kg/s (น้ำ)
+let mw_kg = mw / 60   // ใช้ได้เลย (ρน้ำ≈1000)
+
+// ✅ °C → K
+TWO += 273.15
+TWI += 273.15
+TGI += 273.15
+TGO += 273.15
 
 let dTg = TGI - TGO
+
 if(dTg === 0){
-document.getElementById("energyResult").innerHTML = "ΔT gas = 0"
+document.getElementById("energyResult").innerHTML = "❌ ΔT gas = 0"
 return
 }
 
-let result = mw_kg * (cpw/cpg) * ((TWO-TWI)/dTg)
+// ✅ Energy balance
+let result = mw_kg * (cpw / cpg) * ((TWO - TWI) / dTg)
 
 document.getElementById("energyResult").innerHTML =
 "ṁ<sub>G,EB</sub> = " + result.toFixed(6) + " kg/s"
-
 }
 
 
