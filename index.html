@@ -195,19 +195,46 @@ mfuel_out.innerText="ṁfuel = "+mfuel.toFixed(9)+" kg/s"
 }
 
 function calcLambda(){
-let co2=Number(co2.value)
-let co=Number(co.value)
-let o2=Number(o2.value)
-let hc=Number(hc.value)/10000
-let no=Number(nox.value)/10000
-let hcv=Number(hcv.value)
-let ocv=Number(ocv.value)
 
-let num=co2+co/2+o2+no/2+((hcv/4)*(3.5/(3.5+(co/co2)))-ocv/2)*(co2+co)
-let den=(1+hcv/4-ocv/2)*(co2+co+6*hc)
+let co2 = Number(document.getElementById("co2").value)
+let co  = Number(document.getElementById("co").value)
+let o2  = Number(document.getElementById("o2").value)
+let hc  = Number(document.getElementById("hc").value) / 10000
+let no  = Number(document.getElementById("nox").value) / 10000
+let hcv = Number(document.getElementById("hcv").value)
+let ocv = Number(document.getElementById("ocv").value)
 
-lambda_val=num/den
-lambda_out.innerText="λ = "+lambda_val.toFixed(4)
+// ===== validate =====
+if([co2,co,o2,hc,no,hcv,ocv].some(v=>isNaN(v))){
+alert("กรอกค่า Lambda ให้ครบ")
+return
+}
+
+if(co2 === 0){
+alert("CO2 ห้ามเป็น 0")
+return
+}
+
+// ===== calculate =====
+let term =
+((hcv/4) * (3.5/(3.5 + (co/co2))) - (ocv/2))
+
+let numerator =
+co2 + (co/2) + o2 + (no/2) + term(co2+co)
+
+let denominator =
+(1 + hcv/4 - ocv/2) (co2 + co + 6*hc)
+
+if(denominator === 0){
+alert("ค่าทำให้หาร 0")
+return
+}
+
+let lambda = numerator / denominator
+
+// ===== output =====
+document.getElementById("lambda_out").innerText =
+"λ = " + lambda.toFixed(4)
 }
 
 function calcDensity(){
