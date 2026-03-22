@@ -2,44 +2,43 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Lambda Fix</title>
+<title>Exhaust Gas Calculator (Final)</title>
 
-<script>
-window.MathJax = {
-tex: { inlineMath: [['\\(','\\)'], ['$', '$']] },
-svg: { fontCache: 'global' }
-};
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <style>
 body{
 font-family:Segoe UI;
-background:#f4f6f9;
+background:#eef2f7;
+margin:0;
 padding:20px;
 }
-
+.container{
+max-width:1100px;
+margin:auto;
+}
+h1{
+text-align:center;
+margin-bottom:25px;
+}
 .card{
 background:white;
 padding:20px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
-max-width:600px;
-margin:auto;
+margin-bottom:20px;
+border-radius:12px;
+box-shadow:0 3px 12px rgba(0,0,0,0.1);
 }
-
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:10px;
 }
-
 input{
 padding:8px;
 width:100%;
+border:1px solid #ccc;
+border-radius:6px;
 }
-
 button{
 margin-top:10px;
 padding:10px;
@@ -47,127 +46,228 @@ width:100%;
 background:#2f80ed;
 color:white;
 border:none;
+border-radius:6px;
+font-weight:bold;
+cursor:pointer;
 }
-
 .result{
-margin-top:15px;
+margin-top:10px;
 font-weight:bold;
 color:#2f80ed;
 }
-
 .formula{
 background:#f9fafc;
 padding:10px;
-margin-bottom:10px;
 border-radius:6px;
+margin-bottom:10px;
+text-align:center;
 }
 </style>
 </head>
 
 <body>
+<div class="container">
 
+<h1>Exhaust Gas Flow Calculator</h1>
+
+<!-- FUEL -->
 <div class="card">
-
-<h2>Lambda Calculator</h2>
-
+<h3>1. Fuel Mass Flow</h3>
 <div class="formula">
 \[
-\lambda =
-\frac{
-CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
-+
-\left(
-\frac{H_{cv}}{4}
-\frac{3.5}{3.5+\frac{CO}{CO_2}}
--
-\frac{O_{cv}}{2}
-\right)(CO_2+CO)
-}{
-\left(
-1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2}
-\right)(CO_2+CO+6HC)
-}
+\dot{m}_{fuel} = \frac{\dot{V}_{fuel}\rho}{60 \times 10^6}
 \]
 </div>
 
 <div class="grid">
-<input id="co2" placeholder="CO2 (%)">
-<input id="co" placeholder="CO (%)">
-<input id="o2" placeholder="O2 (%)">
-<input id="hc" placeholder="HC (ppm)">
-<input id="nox" placeholder="NOx (ppm)">
-<input id="hcv" placeholder="Hcv">
-<input id="ocv" placeholder="Ocv">
+<input id="vfuel" placeholder="Fuel (ml/min)">
+<input id="rho_fuel" placeholder="Density (kg/L)">
 </div>
 
-<button id="btnLambda">Calculate</button>
+<div class="result">ṁfuel = <span id="mfuel">-</span></div>
+</div>
 
-<div class="result" id="lambda_out">λ = -</div>
+<!-- LAMBDA -->
+<div class="card">
+<h3>2. Lambda</h3>
+<div class="formula">
+\[
+\lambda =
+\frac{CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
++
+\left(\frac{H_{cv}}{4}\frac{3.5}{3.5+\frac{CO}{CO_2}}-\frac{O_{cv}}{2}\right)(CO_2+CO)}
+{(1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2})(CO_2+CO+nHC)}
+\]
+</div>
+
+<div class="grid">
+<input id="co2" placeholder="CO2">
+<input id="co" placeholder="CO">
+<input id="o2" placeholder="O2">
+<input id="no" placeholder="NO ppm">
+<input id="hc" placeholder="HC ppm">
+<input id="hcv" placeholder="Hcv">
+<input id="ocv" placeholder="Ocv">
+<input id="n" value="6" placeholder="n">
+</div>
+
+<div class="result">λ = <span id="lambda">-</span></div>
+</div>
+
+<!-- A0 -->
+<div class="card">
+<h3>3. A₀</h3>
+<div class="formula">
+\[
+A_0=\frac{22.4}{0.21}\left(\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32}\right)
+\]
+</div>
+
+<div class="grid">
+<input id="C" placeholder="C">
+<input id="H" placeholder="H">
+<input id="O" placeholder="O">
+<input id="S" placeholder="S">
+</div>
+
+<div class="result">A₀ = <span id="A0">-</span></div>
+</div>
+
+<!-- G -->
+<div class="card">
+<h3>4. G′</h3>
+<div class="formula">
+\[
+G'=(\lambda-0.21)A_0+22.4\left(\frac{C}{12}+\frac{H}{2}+\frac{S}{32}+\frac{N}{28}\right)
+\]
+</div>
+
+<div class="grid">
+<input id="N" placeholder="N">
+</div>
+
+<div class="result">G′ = <span id="G">-</span></div>
+</div>
+
+<!-- VSTD -->
+<div class="card">
+<h3>5. Vstd</h3>
+<div class="formula">
+\[
+\dot{V}_{std}=G' \cdot \dot{m}_{fuel}
+\]
+</div>
+
+<div class="result">Vstd = <span id="Vstd">-</span></div>
+</div>
+
+<!-- VACTUAL -->
+<div class="card">
+<h3>6. Vactual</h3>
+<div class="formula">
+\[
+V_{actual}=V_{std}\frac{T}{273.15}
+\]
+</div>
+
+<input id="Tactual" placeholder="Temperature °C">
+
+<div class="result">Vactual = <span id="Vactual">-</span></div>
+</div>
+
+<!-- DENSITY -->
+<div class="card">
+<h3>7. Density</h3>
+<div class="formula">
+\[
+\rho=\frac{PM}{RT}
+\]
+</div>
+
+<div class="grid">
+<input id="P" placeholder="Pressure (Pa)">
+<input id="M" placeholder="M (kg/kmol)">
+<input id="T" placeholder="Temperature °C">
+</div>
+
+<div class="result">ρ = <span id="rho">-</span></div>
+</div>
+
+<!-- EXHAUST -->
+<div class="card">
+<h3>8. Exhaust Flow</h3>
+<div class="formula">
+\[
+\dot{m}=\rho V_{actual}
+\]
+</div>
+
+<div class="result">ṁ exhaust = <span id="mex">-</span></div>
+</div>
+
+<button onclick="calcAll()">🔥 Calculate All</button>
 
 </div>
 
 <script>
 
-document.addEventListener("DOMContentLoaded", function(){
+function calcAll(){
 
-// ===== force MathJax render =====
-if(window.MathJax){
-MathJax.typesetPromise();
+// ===== FUEL =====
+let v=parseFloat(vfuel.value);
+let rf=parseFloat(rho_fuel.value);
+let mf=(v*rf)/(60*1e6);
+mfuel.innerText=mf.toFixed(7);
+
+// ===== LAMBDA =====
+let co2=parseFloat(co2.value);
+let co=parseFloat(co.value);
+let o2=parseFloat(o2.value);
+let no=parseFloat(no.value)/10000;
+let hc=parseFloat(hc.value)/10000;
+let hcv=parseFloat(hcv.value);
+let ocv=parseFloat(ocv.value);
+let n=parseFloat(n.value);
+
+let term=((hcv/4)*(3.5/(3.5+(co/co2)))-(ocv/2));
+let lam=(co2+co/2+o2+no/2+term*(co2+co))/((1+hcv/4-ocv/2)*(co2+co+n*hc));
+lambda.innerText=lam.toFixed(4);
+
+// ===== A0 =====
+let C=parseFloat(C.value);
+let H=parseFloat(H.value);
+let O=parseFloat(O.value);
+let S=parseFloat(S.value);
+let A0v=(22.4/0.21)*((C/12)+(H/4)-(O/8)+(S/32));
+A0.innerText=A0v.toFixed(3);
+
+// ===== G =====
+let N=parseFloat(N.value);
+let Gv=(lam-0.21)*A0v+22.4*((C/12)+(H/2)+(S/32)+(N/28));
+G.innerText=Gv.toFixed(3);
+
+// ===== VSTD =====
+let Vstdv=Gv*mf;
+Vstd.innerText=Vstdv.toFixed(5);
+
+// ===== VACTUAL =====
+let T=parseFloat(Tactual.value)+273.15;
+let Vact=Vstdv*(T/273.15);
+Vactual.innerText=Vact.toFixed(5);
+
+// ===== DENSITY =====
+let P=parseFloat(document.getElementById("P").value);
+let M=parseFloat(document.getElementById("M").value);
+let T2=parseFloat(document.getElementById("T").value)+273.15;
+
+let rho_v=(P*M)/(8314*T2);
+rho.innerText=rho_v.toFixed(3);
+
+// ===== EXHAUST =====
+let mex_v=rho_v*Vact;
+mex.innerText=mex_v.toFixed(5);
+
 }
-
-// ===== bind button =====
-document.getElementById("btnLambda").addEventListener("click", function(){
-
-try{
-
-let co2 = parseFloat(document.getElementById("co2").value);
-let co  = parseFloat(document.getElementById("co").value);
-let o2  = parseFloat(document.getElementById("o2").value);
-let hc  = parseFloat(document.getElementById("hc").value)/10000;
-let no  = parseFloat(document.getElementById("nox").value)/10000;
-let hcv = parseFloat(document.getElementById("hcv").value);
-let ocv = parseFloat(document.getElementById("ocv").value);
-
-// ===== validate =====
-if([co2,co,o2,hc,no,hcv,ocv].some(v=>isNaN(v))){
-alert("กรอกค่าให้ครบ");
-return;
-}
-
-if(co2 === 0){
-alert("CO2 ห้ามเป็น 0");
-return;
-}
-
-// ===== calc =====
-let term =
-((hcv/4)*(3.5/(3.5+(co/co2))) - (ocv/2));
-
-let numerator =
-co2 + co/2 + o2 + no/2 + term*(co2+co);
-
-let denominator =
-(1 + hcv/4 - ocv/2)*(co2 + co + 6*hc);
-
-if(denominator === 0){
-alert("หาร 0");
-return;
-}
-
-let lambda = numerator / denominator;
-
-// ===== show =====
-document.getElementById("lambda_out").innerText =
-"λ = " + lambda.toFixed(4);
-
-}catch(e){
-console.error(e);
-alert("Error ใน Lambda");
-}
-
-});
-
-});
 
 </script>
 
