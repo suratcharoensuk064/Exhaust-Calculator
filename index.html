@@ -7,15 +7,8 @@
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <style>
-body{
-font-family:Segoe UI;
-background:#f0f3f7;
-padding:20px;
-}
-.container{
-max-width:1000px;
-margin:auto;
-}
+body{font-family:Segoe UI;background:#eef2f7;padding:20px;}
+.container{max-width:1000px;margin:auto;}
 .section{
 background:white;
 padding:20px;
@@ -23,13 +16,13 @@ margin-bottom:20px;
 border-radius:10px;
 box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
+h1{text-align:center;}
 input{
 width:220px;
 padding:6px;
-margin:5px 0;
+margin:5px;
 }
 button{
-margin-top:10px;
 padding:8px 14px;
 background:#2f80ed;
 color:white;
@@ -42,144 +35,129 @@ margin-top:10px;
 font-weight:bold;
 color:#2f80ed;
 }
-.formula{
-text-align:center;
-margin-bottom:10px;
-}
-h1{text-align:center;}
+.formula{text-align:center;margin-bottom:10px;}
 </style>
 </head>
 
 <body>
-
 <div class="container">
+
 <h1>Exhaust Gas Calculator</h1>
 
-<!-- ================= FUEL ================= -->
+<!-- 1 FUEL -->
 <div class="section">
 <h3>1. Fuel Flow</h3>
-
 <div class="formula">
 \[
-\dot{m}_{fuel} = \frac{V_{fuel} \cdot \rho}{60 \times 1000}
+\dot{m}_{fuel}=\frac{V\rho}{60\times1000}
 \]
 </div>
 
-<input id="vfuel" placeholder="Fuel (ml/min)">
-<input id="rho_fuel" placeholder="Density (kg/L)">
+<input id="vfuel">
+<input id="rho_fuel">
 
 <button onclick="calcFuel()">Calculate</button>
-
-<div class="result">ṁfuel = <span id="mfuel"></span> kg/s</div>
+<div class="result" id="res_fuel"></div>
 </div>
 
-<!-- ================= LAMBDA ================= -->
+<!-- 2 LAMBDA -->
 <div class="section">
 <h3>2. Lambda</h3>
-
 <div class="formula">
 \[
-\lambda =
-\frac{CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
-+
-\left(\frac{H_{cv}}{4}\frac{3.5}{3.5+\frac{CO}{CO_2}}-\frac{O_{cv}}{2}\right)(CO_2+CO)}
-{(1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2})(CO_2+CO+nHC)}
+\lambda=\frac{CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}+(\frac{H}{4}\frac{3.5}{3.5+\frac{CO}{CO_2}}-\frac{O}{2})(CO_2+CO)}
+{(1+\frac{H}{4}-\frac{O}{2})(CO_2+CO+nHC)}
 \]
 </div>
 
-<input id="co2" placeholder="CO2 %">
-<input id="co" placeholder="CO %">
-<input id="o2" placeholder="O2 %">
-<input id="no" placeholder="NO ppm">
-<input id="hc" placeholder="HC ppm">
-<input id="hcv" placeholder="Hcv">
-<input id="ocv" placeholder="Ocv">
-<input id="n" placeholder="n">
+<input id="co2">
+<input id="co">
+<input id="o2">
+<input id="no">
+<input id="hc">
+<input id="hcv">
+<input id="ocv">
+<input id="n">
 
 <button onclick="calcLambda()">Calculate</button>
-
-<div class="result">λ = <span id="lambda"></span></div>
+<div class="result" id="res_lambda"></div>
 </div>
 
-<!-- ================= A0 ================= -->
+<!-- 3 A0 -->
 <div class="section">
-<h3>3. A₀</h3>
+<h3>3. A0</h3>
 
 <div class="formula">
 \[
-A_0=\frac{22.4}{0.21}\left(\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32}\right)
+A_0=\frac{22.4}{0.21}(\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32})
 \]
 </div>
 
-<input id="C" placeholder="C">
-<input id="H" placeholder="H">
-<input id="O" placeholder="O">
-<input id="S" placeholder="S">
+<input id="C">
+<input id="H">
+<input id="O">
+<input id="S">
 
 <button onclick="calcA0()">Calculate</button>
-
-<div class="result">A₀ = <span id="A0"></span></div>
+<div class="result" id="res_A0"></div>
 </div>
 
-<!-- ================= G ================= -->
+<!-- 4 G -->
 <div class="section">
 <h3>4. G′</h3>
 
 <div class="formula">
 \[
-G'=(\lambda-0.21)A_0+22.4\left(\frac{C}{12}+\frac{H}{2}+\frac{S}{32}+\frac{N}{28}\right)
+G'=(\lambda-0.21)A_0+22.4(\frac{C}{12}+\frac{H}{2}+\frac{S}{32}+\frac{N}{28})
 \]
 </div>
 
-<input id="lambda_g" placeholder="λ">
-<input id="A0_g" placeholder="A0">
-<input id="C_g" placeholder="C">
-<input id="H_g" placeholder="H">
-<input id="S_g" placeholder="S">
-<input id="N_g" placeholder="N">
+<input id="lam_g">
+<input id="A0_g">
+<input id="C_g">
+<input id="H_g">
+<input id="S_g">
+<input id="N_g">
 
 <button onclick="calcG()">Calculate</button>
-
-<div class="result">G′ = <span id="G"></span></div>
+<div class="result" id="res_G"></div>
 </div>
 
-<!-- ================= VSTD ================= -->
+<!-- 5 Vstd -->
 <div class="section">
 <h3>5. Vstd</h3>
 
 <div class="formula">
 \[
-V_{std}=G' \cdot \dot{m}_{fuel}
+V_{std}=G'\dot{m}_{fuel}
 \]
 </div>
 
-<input id="G_v" placeholder="G′">
-<input id="mfuel_v" placeholder="ṁfuel">
+<input id="G_v">
+<input id="mf_v">
 
 <button onclick="calcVstd()">Calculate</button>
-
-<div class="result">Vstd = <span id="Vstd"></span></div>
+<div class="result" id="res_Vstd"></div>
 </div>
 
-<!-- ================= VACTUAL ================= -->
+<!-- 6 Vactual -->
 <div class="section">
 <h3>6. Vactual</h3>
 
 <div class="formula">
 \[
-V_{actual}=V_{std}\frac{T_{actual}}{273.15}
+V_{actual}=V_{std}\frac{T}{273.15}
 \]
 </div>
 
-<input id="Vstd_a" placeholder="Vstd">
-<input id="Tactual" placeholder="T (°C)">
+<input id="Vstd_a">
+<input id="T_a">
 
 <button onclick="calcVactual()">Calculate</button>
-
-<div class="result">Vactual = <span id="Vactual"></span></div>
+<div class="result" id="res_Vactual"></div>
 </div>
 
-<!-- ================= DENSITY ================= -->
+<!-- 7 Density -->
 <div class="section">
 <h3>7. Density</h3>
 
@@ -189,46 +167,49 @@ V_{actual}=V_{std}\frac{T_{actual}}{273.15}
 \]
 </div>
 
-<input id="P" placeholder="P (Pa)">
-<input id="M" placeholder="M (kg/kmol)">
-<input id="T" placeholder="T (°C)">
+<input id="P">
+<input id="M">
+<input id="T_d">
 
 <button onclick="calcDensity()">Calculate</button>
-
-<div class="result">ρ = <span id="rho"></span></div>
+<div class="result" id="res_rho"></div>
 </div>
 
-<!-- ================= EXHAUST ================= -->
+<!-- 8 Exhaust -->
 <div class="section">
 <h3>8. Exhaust Flow</h3>
 
 <div class="formula">
 \[
-\dot{m}=\rho \cdot V_{actual}
+\dot{m}=\rho V
 \]
 </div>
 
-<input id="rho_e" placeholder="ρ">
-<input id="Vactual_e" placeholder="Vactual">
+<input id="rho_e">
+<input id="V_e">
 
 <button onclick="calcExhaust()">Calculate</button>
-
-<div class="result">ṁ exhaust = <span id="mex"></span></div>
+<div class="result" id="res_ex"></div>
 </div>
 
 </div>
 
 <script>
 
-// Fuel
-function calcFuel(){
-let v=parseFloat(vfuel.value);
-let rho=parseFloat(rho_fuel.value);
-let mf=(v*rho)/(60*1000);
-mfuel.innerText=mf.toFixed(6);
+function check(...vals){
+return vals.every(v=>!isNaN(v));
 }
 
-// Lambda
+function calcFuel(){
+let v=parseFloat(vfuel.value);
+let r=parseFloat(rho_fuel.value);
+
+if(!check(v,r)) return alert("กรอกให้ครบ");
+
+let mf=(v*r)/(60*1000);
+res_fuel.innerText=mf.toFixed(6)+" kg/s";
+}
+
 function calcLambda(){
 let co2=parseFloat(co2.value);
 let co=parseFloat(co.value);
@@ -237,74 +218,83 @@ let no=parseFloat(no.value)/10000;
 let hc=parseFloat(hc.value)/10000;
 let hcv=parseFloat(hcv.value);
 let ocv=parseFloat(ocv.value);
-let n=parseFloat(document.getElementById("n").value);
+let n=parseFloat(n.value);
+
+if(!check(co2,co,o2,no,hc,hcv,ocv,n)) return alert("กรอกให้ครบ");
+if(co2===0) return alert("CO2 ห้ามเป็น 0");
 
 let lam=(co2+co/2+o2+no/2+
 ((hcv/4)*(3.5/(3.5+(co/co2)))-(ocv/2))*(co2+co))/
 ((1+hcv/4-ocv/2)*(co2+co+n*hc));
 
-lambda.innerText=lam.toFixed(4);
+res_lambda.innerText=lam.toFixed(6);
 }
 
-// A0
 function calcA0(){
 let C=parseFloat(C.value);
 let H=parseFloat(H.value);
 let O=parseFloat(O.value);
 let S=parseFloat(S.value);
 
-let A0v=(22.4/0.21)*((C/12)+(H/4)-(O/8)+(S/32));
-A0.innerText=A0v.toFixed(3);
+if(!check(C,H,O,S)) return alert("กรอกให้ครบ");
+
+let A0=(22.4/0.21)*((C/12)+(H/4)-(O/8)+(S/32));
+res_A0.innerText=A0.toFixed(6);
 }
 
-// G
 function calcG(){
-let lam=parseFloat(lambda_g.value);
+let lam=parseFloat(lam_g.value);
 let A0=parseFloat(A0_g.value);
 let C=parseFloat(C_g.value);
 let H=parseFloat(H_g.value);
 let S=parseFloat(S_g.value);
 let N=parseFloat(N_g.value);
 
-let Gv=(lam-0.21)*A0+22.4*((C/12)+(H/2)+(S/32)+(N/28));
-G.innerText=Gv.toFixed(3);
+if(!check(lam,A0,C,H,S,N)) return alert("กรอกให้ครบ");
+
+let G=(lam-0.21)*A0+22.4*((C/12)+(H/2)+(S/32)+(N/28));
+res_G.innerText=G.toFixed(6);
 }
 
-// Vstd
 function calcVstd(){
 let G=parseFloat(G_v.value);
-let mf=parseFloat(mfuel_v.value);
+let mf=parseFloat(mf_v.value);
+
+if(!check(G,mf)) return alert("กรอกให้ครบ");
 
 let V=G*mf;
-Vstd.innerText=V.toFixed(5);
+res_Vstd.innerText=V.toFixed(6)+" m³/s";
 }
 
-// Vactual
 function calcVactual(){
 let Vstd=parseFloat(Vstd_a.value);
-let T=parseFloat(Tactual.value)+273.15;
+let T=parseFloat(T_a.value)+273.15;
+
+if(!check(Vstd,T)) return alert("กรอกให้ครบ");
 
 let V=Vstd*(T/273.15);
-Vactual.innerText=V.toFixed(5);
+res_Vactual.innerText=V.toFixed(6)+" m³/s";
 }
 
-// Density
 function calcDensity(){
-let P=parseFloat(document.getElementById("P").value);
-let M=parseFloat(document.getElementById("M").value);
-let T=parseFloat(document.getElementById("T").value)+273.15;
+let P=parseFloat(P.value);
+let M=parseFloat(M.value);
+let T=parseFloat(T_d.value)+273.15;
+
+if(!check(P,M,T)) return alert("กรอกให้ครบ");
 
 let rho=(P*M)/(8314*T);
-document.getElementById("rho").innerText=rho.toFixed(3);
+res_rho.innerText=rho.toFixed(6)+" kg/m³";
 }
 
-// Exhaust
 function calcExhaust(){
 let rho=parseFloat(rho_e.value);
-let V=parseFloat(Vactual_e.value);
+let V=parseFloat(V_e.value);
+
+if(!check(rho,V)) return alert("กรอกให้ครบ");
 
 let m=rho*V;
-mex.innerText=m.toFixed(5);
+res_ex.innerText=m.toFixed(6)+" kg/s";
 }
 
 </script>
