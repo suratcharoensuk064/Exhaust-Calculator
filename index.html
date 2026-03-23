@@ -1,305 +1,329 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Exhaust Gas Calculator</title>
+<title>Exhaust Gas Flow Calculator</title>
 
-<script>
-window.MathJax = {
-tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
-};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <style>
 body{
-font-family:Arial;
-background:#f4f6f9;
-margin:0;
+font-family: "Segoe UI", sans-serif;
+background:#f4f6fb;
 padding:20px;
 }
-
 .container{
-max-width:900px;
+max-width:950px;
 margin:auto;
 }
-
 h1{
 text-align:center;
 margin-bottom:30px;
 }
-
 .section{
 background:white;
-padding:20px;
-margin-bottom:20px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
+padding:25px;
+margin-bottom:25px;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
 }
-
 .formula{
+background:#f9fbff;
+padding:10px;
+border-radius:8px;
 text-align:center;
 margin-bottom:15px;
 }
-
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
 label{
-display:block;
-margin-top:10px;
+font-size:14px;
 }
-
 input{
-width:220px;
-padding:6px;
-margin-top:5px;
+width:100%;
+padding:7px;
+border-radius:6px;
+border:1px solid #ccc;
 }
-
 button{
-margin-top:15px;
-padding:8px 16px;
+margin-top:10px;
+padding:10px;
+width:100%;
 background:#2f80ed;
 color:white;
 border:none;
-border-radius:5px;
+border-radius:6px;
+font-weight:bold;
 cursor:pointer;
 }
-
 .result{
-margin-top:15px;
+margin-top:10px;
 font-weight:bold;
+color:#2f80ed;
 }
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
 <h1>Exhaust Gas Flow Calculator</h1>
 
-<!-- ================= FUEL ================= -->
+<!-- 1 -->
 <div class="section">
 <h3>1. Fuel Mass Flow</h3>
-
 <div class="formula">
 \[
-\dot{m}_{fuel} =
-\frac{\dot{V}_{fuel}\rho_{fuel}}{60\times10^{6}}
+\dot{m}_{fuel}=\frac{V_{fuel}\rho_{fuel}}{60\times1000}
 \]
 </div>
 
-<label>Fuel Flow (ml/min)</label>
-<input id="vfuel">
-
-<label>Fuel Density (kg/L)</label>
-<input id="rho_fuel">
+<div class="grid">
+<label>Fuel Flow (ml/min)<input id="vfuel"></label>
+<label>Density (kg/L)<input id="rho_fuel"></label>
+</div>
 
 <button onclick="calcFuel()">Calculate</button>
-
-<p class="result">
-ṁfuel = <span id="mfuel"></span> kg/s
-</p>
+<div class="result">ṁfuel = <span id="mfuel"></span> kg/s</div>
 </div>
 
-<!-- ================= LAMBDA ================= -->
+<!-- 2 -->
 <div class="section">
 <h3>2. Lambda (λ)</h3>
-
 <div class="formula">
 \[
-\lambda =
-\frac{
-CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}+
-\left(
-\frac{H_{cv}}{4}\frac{3.5}{3.5+\frac{CO}{CO_2}}-\frac{O_{cv}}{2}
-\right)(CO_2+CO)
-}{
-\left(1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2}\right)
-(CO_2+CO+nHC)
-}
+\lambda=
+\frac{CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
++
+\left(\frac{H_{cv}}{4}\frac{3.5}{3.5+\frac{CO}{CO_2}}-\frac{O_{cv}}{2}\right)(CO_2+CO)}
+{(1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2})(CO_2+CO+nHC)}
 \]
 </div>
 
-<label>CO₂ (%)</label><input id="co2">
-<label>CO (%)</label><input id="co">
-<label>O₂ (%)</label><input id="o2">
-<label>NO (ppm)</label><input id="no">
-<label>HC (ppm)</label><input id="hc">
-<label>Hcv</label><input id="hcv">
-<label>Ocv</label><input id="ocv">
-<label>n</label><input id="n">
+<div class="grid">
+<label>CO₂ (%)<input id="co2"></label>
+<label>CO (%)<input id="co"></label>
+<label>O₂ (%)<input id="o2"></label>
+<label>NOₓ (ppm)<input id="no"></label>
+<label>HC (ppm)<input id="hc"></label>
+<label>Hcv<input id="hcv"></label>
+<label>Ocv<input id="ocv"></label>
+<label>n<input id="n" value="6"></label>
+</div>
 
 <button onclick="calcLambda()">Calculate</button>
-
-<p class="result">
-λ = <span id="lambda"></span>
-</p>
+<div class="result">λ = <span id="lambda"></span></div>
 </div>
 
-<!-- ================= DENSITY ================= -->
+<!-- 3 -->
 <div class="section">
-<h3>3. Exhaust Density</h3>
-
+<h3>3. A₀</h3>
 <div class="formula">
 \[
-\rho = \frac{PM}{RT}
+A_0=\frac{22.4}{0.21}\left(\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32}\right)
 \]
 </div>
 
-<label>P (Pa)</label><input id="P">
-<label>T (°C)</label><input id="T">
-<label>M (kg/kmol)</label><input id="M">
+<div class="grid">
+<label>C<input id="C"></label>
+<label>H<input id="H"></label>
+<label>O<input id="O"></label>
+<label>S<input id="S"></label>
+</div>
+
+<button onclick="calcA0()">Calculate</button>
+<div class="result">A₀ = <span id="A0"></span></div>
+</div>
+
+<!-- 4 -->
+<div class="section">
+<h3>4. G′</h3>
+<div class="formula">
+\[
+G'=(\lambda-0.21)A_0+22.4\left(\frac{C}{12}+\frac{H}{2}+\frac{S}{32}+\frac{N}{28}\right)
+\]
+</div>
+
+<div class="grid">
+<label>λ<input id="lam_g"></label>
+<label>A₀<input id="A0_g"></label>
+<label>C<input id="C_g"></label>
+<label>H<input id="H_g"></label>
+<label>S<input id="S_g"></label>
+<label>N<input id="N_g"></label>
+</div>
+
+<button onclick="calcG()">Calculate</button>
+<div class="result">G′ = <span id="G"></span> m³/kg</div>
+</div>
+
+<!-- 5 -->
+<div class="section">
+<h3>5. Vstd</h3>
+<div class="formula">
+\[
+V_{std}=G' \cdot \dot{m}_{fuel}
+\]
+</div>
+
+<div class="grid">
+<label>G′<input id="G_v"></label>
+<label>ṁfuel<input id="mf_v"></label>
+</div>
+
+<button onclick="calcVstd()">Calculate</button>
+<div class="result">Vstd = <span id="Vstd"></span> m³/s</div>
+</div>
+
+<!-- 6 -->
+<div class="section">
+<h3>6. Vactual</h3>
+<div class="formula">
+\[
+V_{actual}=V_{std}\frac{T_{actual}}{273.15}
+\]
+</div>
+
+<div class="grid">
+<label>Vstd<input id="Vstd_a"></label>
+<label>T (°C)<input id="T_a"></label>
+</div>
+
+<button onclick="calcVactual()">Calculate</button>
+<div class="result">Vactual = <span id="Vactual"></span> m³/s</div>
+</div>
+
+<!-- 7 -->
+<div class="section">
+<h3>7. Density</h3>
+<div class="formula">
+\[
+\rho=\frac{PM}{RT}
+\]
+</div>
+
+<div class="grid">
+<label>P (Pa)<input id="P"></label>
+<label>M (kg/kmol)<input id="M"></label>
+<label>T (°C)<input id="T_d"></label>
+</div>
 
 <button onclick="calcDensity()">Calculate</button>
-
-<p class="result">
-ρ = <span id="rho"></span> kg/m³
-</p>
+<div class="result">ρ = <span id="rho"></span> kg/m³</div>
 </div>
 
-<!-- ================= ENERGY BALANCE ================= -->
+<!-- 8 -->
 <div class="section">
-<h3>4. Exhaust Flow (Energy Balance)</h3>
-
+<h3>8. Exhaust Flow</h3>
 <div class="formula">
 \[
-\dot{m}_{G,EB} =
-m_w
-\left(
-\frac{C_{pw}}{C_{pg}}
-\right)
-\left(
-\frac{T_{wo}-T_{wi}}{T_{GI}-T_{GO}}
-\right)
+\dot{m}=\rho \cdot V_{actual}
 \]
 </div>
 
-<label>Water Flow (LPM)</label>
-<input id="mw_eb">
+<div class="grid">
+<label>ρ<input id="rho_e"></label>
+<label>Vactual<input id="V_e"></label>
+</div>
 
-<label>Cpw (kJ/kg·K)</label>
-<input id="cpw_eb" value="4.186">
-
-<label>Cpg (kJ/kg·K)</label>
-<input id="cpg_eb" value="1.005">
-
-<label>TWO (°C)</label>
-<input id="two_eb">
-
-<label>TWI (°C)</label>
-<input id="twi_eb">
-
-<label>TGI (°C)</label>
-<input id="tgi_eb">
-
-<label>TGO (°C)</label>
-<input id="tgo_eb">
-
-<button onclick="calcEnergyBalance()">Calculate</button>
-
-<p class="result">
-ṁG,EB = <span id="resultEB"></span> kg/s
-</p>
+<button onclick="calcExhaust()">Calculate</button>
+<div class="result">ṁ exhaust = <span id="mex"></span> kg/s</div>
 </div>
 
 </div>
 
 <script>
 
-// ================= FUEL =================
+function num(id){
+return parseFloat(document.getElementById(id).value);
+}
+
+// Fuel
 function calcFuel(){
-let v = parseFloat(document.getElementById("vfuel").value)
-let rho = parseFloat(document.getElementById("rho_fuel").value)
-
-if(isNaN(v) || isNaN(rho)){
-document.getElementById("mfuel").innerHTML = "กรอกให้ครบ"
-return
+let v=num("vfuel"), r=num("rho_fuel");
+if(isNaN(v)||isNaN(r)) return alert("กรอก Fuel ให้ครบ");
+mfuel.innerText=((v*r)/(60*1000)).toFixed(7);
 }
 
-let m = (v * rho) / (60 * 1000000)
-
-document.getElementById("mfuel").innerHTML =
-m.toFixed(7)
-}
-
-// ================= LAMBDA =================
+// Lambda (FIXED)
 function calcLambda(){
 
-let co2 = parseFloat(co2.value)
-let co = parseFloat(co.value)
-let o2 = parseFloat(o2.value)
-let no = parseFloat(no.value)/10000
-let hc = parseFloat(hc.value)/10000
-let hcv = parseFloat(hcv.value)
-let ocv = parseFloat(ocv.value)
-let n = parseFloat(n.value)
+let co2=num("co2")/100;
+let co=num("co")/100;
+let o2=num("o2")/100;
+let no=num("no")/10000;
+let hc=num("hc")/10000;
 
-if([co2,co,o2,no,hc,hcv,ocv,n].some(isNaN)){
-document.getElementById("lambda").innerHTML="กรอกให้ครบ"
-return
+let hcv=num("hcv");
+let ocv=num("ocv");
+let n=num("n");
+
+if([co2,co,o2,no,hc,hcv,ocv,n].some(isNaN))
+return alert("กรอก Lambda ให้ครบ");
+
+if(co2<=0)
+return alert("CO2 ห้ามเป็น 0");
+
+let lam=(co2+co/2+o2+no/2+
+((hcv/4)*(3.5/(3.5+(co/co2)))-(ocv/2))*(co2+co))/
+((1+hcv/4-ocv/2)*(co2+co+n*hc));
+
+lambda.innerText=lam.toFixed(6);
 }
 
-let num =
-co2 + co/2 + o2 + no/2 +
-((hcv/4)*(3.5/(3.5+(co/co2))) - ocv/2)*(co2+co)
+// A0
+function calcA0(){
+let C=num("C"), H=num("H"), O=num("O"), S=num("S");
+if([C,H,O,S].some(isNaN)) return alert("กรอก A0 ให้ครบ");
 
-let den =
-(1 + hcv/4 - ocv/2)*(co2 + co + n*hc)
-
-let lam = num / den
-
-document.getElementById("lambda").innerHTML =
-lam.toFixed(4)
+A0.innerText=((22.4/0.21)*((C/12)+(H/4)-(O/8)+(S/32))).toFixed(6);
 }
 
-// ================= DENSITY =================
+// G
+function calcG(){
+let lam=num("lam_g"), A0v=num("A0_g");
+let C=num("C_g"), H=num("H_g"), S=num("S_g"), N=num("N_g");
+
+if([lam,A0v,C,H,S,N].some(isNaN)) return alert("กรอก G′ ให้ครบ");
+
+G.innerText=((lam-0.21)*A0v+22.4*((C/12)+(H/2)+(S/32)+(N/28))).toFixed(6);
+}
+
+// Vstd
+function calcVstd(){
+let Gv=num("G_v"), mf=num("mf_v");
+if([Gv,mf].some(isNaN)) return alert("กรอก Vstd ให้ครบ");
+
+Vstd.innerText=(Gv*mf).toFixed(6);
+}
+
+// Vactual
+function calcVactual(){
+let Vstdv=num("Vstd_a"), T=num("T_a")+273.15;
+if(isNaN(Vstdv)||isNaN(T)) return alert("กรอก Vactual ให้ครบ");
+
+Vactual.innerText=(Vstdv*(T/273.15)).toFixed(6);
+}
+
+// Density
 function calcDensity(){
+let P=num("P"), M=num("M"), T=num("T_d")+273.15;
+if([P,M,T].some(isNaN)) return alert("กรอก Density ให้ครบ");
 
-let P = parseFloat(P.value)
-let T = parseFloat(T.value)+273.15
-let M = parseFloat(M.value)
-
-if(isNaN(P)||isNaN(T)||isNaN(M)){
-document.getElementById("rho").innerHTML="กรอกให้ครบ"
-return
+rho.innerText=((P*M)/(8314*T)).toFixed(6);
 }
 
-let R = 8314
+// Exhaust
+function calcExhaust(){
+let r=num("rho_e"), V=num("V_e");
+if([r,V].some(isNaN)) return alert("กรอก Exhaust ให้ครบ");
 
-let rho = (P * M)/(R * T)
-
-document.getElementById("rho").innerHTML =
-rho.toFixed(4)
-}
-
-// ================= ENERGY BALANCE =================
-function calcEnergyBalance(){
-
-let mw = parseFloat(mw_eb.value)
-let cpw = parseFloat(cpw_eb.value)
-let cpg = parseFloat(cpg_eb.value)
-let TWO = parseFloat(two_eb.value)
-let TWI = parseFloat(twi_eb.value)
-let TGI = parseFloat(tgi_eb.value)
-let TGO = parseFloat(tgo_eb.value)
-
-if([mw,cpw,cpg,TWO,TWI,TGI,TGO].some(isNaN)){
-resultEB.innerHTML="กรอกให้ครบ"
-return
-}
-
-let mw_kg = mw / 60
-
-let dTw = TWO - TWI
-let dTg = TGI - TGO
-
-if(dTg === 0){
-resultEB.innerHTML="ΔT gas = 0"
-return
-}
-
-let mg = mw_kg * (cpw/cpg) * (dTw/dTg)
-
-resultEB.innerHTML =
-mg.toFixed(6)
+mex.innerText=(r*V).toFixed(6);
 }
 
 </script>
