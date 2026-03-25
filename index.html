@@ -145,7 +145,7 @@ A_0=\frac{22.4}{0.21}\left(\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32}\rig
 <h3>4. G′</h3>
 <div class="formula">
 \[
-G'=(\lambda-0.21)A_0+22.4\left(\frac{C}{12}+\frac{H}{2}+\frac{S}{32}+\frac{N}{28}\right)
+G'=(\lambda-0.21)A_0+22.4\left(\frac{C}{12}+\frac{S}{32}+\frac{N}{28}\right)
 \]
 </div>
 
@@ -287,11 +287,11 @@ A0.innerText=((22.4/0.21)*((C/12)+(H/4)-(O/8)+(S/32))).toFixed(6);
 // G
 function calcG(){
 let lam=num("lam_g"), A0v=num("A0_g");
-let C=num("C_g"), H=num("H_g"), S=num("S_g"), N=num("N_g");
+let C=num("C_g", S=num("S_g"), N=num("N_g");
 
-if([lam,A0v,C,H,S,N].some(isNaN)) return alert("กรอก G′ ให้ครบ");
+if([lam,A0v,C,S,N].some(isNaN)) return alert("กรอก G′ ให้ครบ");
 
-G.innerText=((lam-0.21)*A0v+22.4*((C/12)+(H/2)+(S/32)+(N/28))).toFixed(6);
+G.innerText=((lam-0.21)*A0v+22.4*((C/12)+(S/32)+(N/28))).toFixed(6);
 }
 
 // Vstd
