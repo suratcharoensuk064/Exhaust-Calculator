@@ -1,331 +1,1551 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Exhaust Gas Flow Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <title>Exhaust Gas Mass Flow Rate Calculator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            width: 100%;
+            min-height: 100%;
+            font-family: 'Barlow Condensed', sans-serif;
+            background: #0d0f14;
+            color: #e5e7eb;
+            overflow: auto;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(0deg, transparent 24%, rgba(245, 158, 11, 0.05) 25%, rgba(245, 158, 11, 0.05) 26%, transparent 27%, transparent 74%, rgba(245, 158, 11, 0.05) 75%, rgba(245, 158, 11, 0.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(245, 158, 11, 0.05) 25%, rgba(245, 158, 11, 0.05) 26%, transparent 27%, transparent 74%, rgba(245, 158, 11, 0.05) 75%, rgba(245, 158, 11, 0.05) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: 100%;
+            min-height: 100%;
+            padding: 20px;
+            gap: 20px;
+        }
+        .sidebar {
+            width: 350px;
+            background: #161b22;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #f59e0b #1a1f26;
+        }
+        .sidebar::-webkit-scrollbar { width: 8px; }
+        .sidebar::-webkit-scrollbar-track { background: #1a1f26; }
+        .sidebar::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 4px; }
+        .sidebar-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f59e0b;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        .mode-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.08);
+            color: #f59e0b;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .mode-btn.active {
+            background: #f59e0b;
+            color: #0d0f14;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+        }
+        .mode-note {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 18px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .is-hidden { display: none !important; }
 
-<style>
-body{
-font-family: "Segoe UI", sans-serif;
-background:#f4f6fb;
-padding:20px;
-}
-.container{
-max-width:950px;
-margin:auto;
-}
-h1{
-text-align:center;
-margin-bottom:30px;
-}
-.section{
-background:white;
-padding:25px;
-margin-bottom:25px;
-border-radius:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.08);
-}
-.formula{
-background:#f9fbff;
-padding:10px;
-border-radius:8px;
-text-align:center;
-margin-bottom:15px;
-}
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-}
-label{
-font-size:14px;
-}
-input{
-width:100%;
-padding:7px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-button{
-margin-top:10px;
-padding:10px;
-width:100%;
-background:#2f80ed;
-color:white;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
-.result{
-margin-top:10px;
-font-weight:bold;
-color:#2f80ed;
-}
-</style>
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+        .panel {
+            background: #161b22;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .subgrid {
+            display: grid;
+            grid-template-columns: minmax(320px, 0.9fr) 1.1fr;
+            gap: 20px;
+        }
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f59e0b;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .summary-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .badge {
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            background: rgba(245, 158, 11, 0.08);
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            color: #cbd5e1;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .collapsible-group { margin-bottom: 20px; }
+        .group-header {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #f59e0b;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        .group-header:hover {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+        .group-header::after { content: '▼'; transition: transform 0.3s ease; font-size: 12px; }
+        .group-header.collapsed::after { transform: rotate(-90deg); }
+        .group-content { max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease; padding-top: 12px; }
+        .group-content.collapsed { max-height: 0; padding-top: 0; }
+        .input-group { margin-bottom: 14px; }
+        .input-label {
+            display: block;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            background: #0d0f14;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 6px;
+            color: #e5e7eb;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4), inset 0 0 8px rgba(245, 158, 11, 0.1);
+            background: rgba(245, 158, 11, 0.03);
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+        .conversion-preview {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            border-left: 2px solid rgba(245, 158, 11, 0.2);
+            padding-left: 8px;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .result-card {
+            background: #0d0f14;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 6px;
+            padding: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .result-card:hover {
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+        }
+        .result-card.pulse { animation: glowPulse 0.6s ease-out; }
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); border-color: rgba(245, 158, 11, 0.8); }
+            50% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.6); }
+            100% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); border-color: rgba(245, 158, 11, 0.2); }
+        }
+        .result-label {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-bottom: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .result-value {
+            font-size: 18px;
+            color: #f59e0b;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            word-break: break-all;
+        }
+        .result-unit, .result-equation {
+            font-size: 9px;
+            color: #6b7280;
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .mini-buttons, .chart-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 16px;
+            background: #f59e0b;
+            border: none;
+            border-radius: 6px;
+            color: #0d0f14;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 0 12px rgba(245, 158, 11, 0.5); }
+        button:active { transform: translateY(0); }
+        .danger-btn { background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); }
+        .secondary-btn { background: rgba(34, 211, 238, 0.12); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.35); }
+        .trial-delete {
+            padding: 5px 9px;
+            font-size: 11px;
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+        }
+        .table-wrap {
+            width: 100%;
+            overflow: auto;
+            border: 1px solid rgba(245, 158, 11, 0.12);
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+        th {
+            background: rgba(245, 158, 11, 0.12);
+            color: #f8fafc;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+            padding: 8px 10px;
+            text-align: center;
+            vertical-align: bottom;
+            white-space: nowrap;
+        }
+        th .th-main {
+            display: block;
+            color: #f8fafc;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        th .th-sub {
+            display: block;
+            margin-top: 3px;
+            color: #94a3b8;
+            font-size: 9px;
+            font-weight: 400;
+            line-height: 1.15;
+            text-transform: none;
+        }
+        td {
+            padding: 8px 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.08);
+            color: #e5e7eb;
+            white-space: nowrap;
+        }
+        tbody tr:nth-child(odd) td { background: rgba(255,255,255,0.015); }
+        .status-line {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 10px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .chart-container { position: relative; height: 260px; }
+        @media (max-width: 1200px) {
+            .subgrid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 1024px) {
+            .wrapper { flex-direction: column; }
+            .sidebar { width: 100%; max-height: 360px; }
+            .results-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .wrapper { padding: 12px; gap: 12px; }
+            .sidebar { max-height: 280px; }
+            .results-grid { grid-template-columns: repeat(2, 1fr); }
+            .chart-buttons, .mini-buttons { flex-direction: column; }
+            button { width: 100%; }
+        }
+    </style>
 </head>
-
 <body>
+<div class="wrapper">
+    <div class="sidebar">
+        <div class="sidebar-title">Engine Diagnostics</div>
 
-<div class="container">
+        <div class="mode-switch">
+            <button type="button" id="manualModeBtn" class="mode-btn active">Manual Mode</button>
+            <button type="button" id="batchModeBtn" class="mode-btn">Batch Mode</button>
+        </div>
+        <div class="mode-note" id="modeNote">Manual mode: input one case at a time</div>
 
-<h1>Exhaust Gas Flow Calculator</h1>
 
-<!-- 1 -->
-<div class="section">
-<h3>1. Fuel Mass Flow</h3>
-<div class="formula">
-\[
-\dot{m}_{fuel}=\frac{V_{fuel}\rho_{fuel}}{60\times1000}
-\]
-</div>
+        <div class="collapsible-group mode-manual-only" id="section-engine-condition">
+            <div class="group-header">Engine Condition</div>
+            <div class="group-content">
+                <div class="input-group"><label class="input-label">Engine Speed (RPM)</label><input type="number" id="rpm" step="100" placeholder="e.g. 2000"></div>
+            </div>
+        </div>
 
-<div class="grid">
-<label>Fuel Flow (ml/min)<input id="vfuel"></label>
-<label>Density (kg/L)<input id="rho_fuel"></label>
-</div>
+        <div class="collapsible-group mode-global" id="section-fuel-properties">
+            <div class="group-header">Fuel Properties</div>
+            <div class="group-content">
+                <div class="input-group"><label class="input-label">H/C Ratio (H<sub>cv</sub>)</label><input type="number" id="Hcv" step="0.01" placeholder="e.g. 1.8"></div>
+                <div class="input-group"><label class="input-label">O/C Ratio (O<sub>cv</sub>)</label><input type="number" id="Ocv" step="0.01" placeholder="e.g. 0.0"></div>
+                <div class="input-group"><label class="input-label">Carbon Atoms (C)</label><input type="number" id="C" step="1" placeholder="e.g. 8"></div>
+                <div class="input-group"><label class="input-label">Hydrogen Atoms (H)</label><input type="number" id="H" step="1" placeholder="e.g. 18"></div>
+                <div class="input-group"><label class="input-label">Oxygen Atoms (O)</label><input type="number" id="O" step="1" placeholder="e.g. 0"></div>
+                <div class="input-group"><label class="input-label">Sulfur Atoms (S)</label><input type="number" id="S" step="1" placeholder="e.g. 0"></div>
+                <div class="input-group"><label class="input-label">Nitrogen Atoms (N)</label><input type="number" id="N" step="1" placeholder="e.g. 0"></div>
+                <div class="input-group"><label class="input-label">HC Analyzer Reference (n)</label><input type="number" id="n" step="1" placeholder="e.g. 1" value="1"></div>
+            </div>
+        </div>
 
-<button onclick="calcFuel()">Calculate</button>
-<div class="result">ṁfuel = <span id="mfuel"></span> kg/s</div>
-</div>
+        <div class="collapsible-group mode-manual-only" id="section-fuel-flow">
+            <div class="group-header">Fuel Flow</div>
+            <div class="group-content">
+                <div class="input-group"><label class="input-label">Volumetric Flow (V̇<sub>f</sub>) [ml/min]</label><input type="number" id="Vdot_f" step="0.1" placeholder="e.g. 100"><div class="conversion-preview" id="prev-Vdot_f"></div></div>
+                <div class="input-group"><label class="input-label">Fuel Density (ρ<sub>f</sub>) [kg/L]</label><input type="number" id="rho_f" step="0.01" placeholder="e.g. 0.74"><div class="conversion-preview" id="prev-rho_f"></div></div>
+            </div>
+        </div>
 
-<!-- 2 -->
-<div class="section">
-<h3>2. Lambda (λ)</h3>
-<div class="formula">
-\[
-\lambda=
-\frac{CO_2+\frac{CO}{2}+O_2+\frac{NO}{2}
-+
-\left(\frac{H_{cv}}{4}\frac{3.5}{3.5+\frac{CO}{CO_2}}-\frac{O_{cv}}{2}\right)(CO_2+CO)}
-{(1+\frac{H_{cv}}{4}-\frac{O_{cv}}{2})(CO_2+CO+nHC)}
-\]
-</div>
+        <div class="collapsible-group mode-manual-only" id="section-gas-analyzer">
+            <div class="group-header">Exhaust Gas Analyzer</div>
+            <div class="group-content">
+                <div class="input-group"><label class="input-label">CO₂ [% Vol]</label><input type="number" id="CO2" step="0.01" placeholder="e.g. 12.5"><div class="conversion-preview" id="prev-CO2"></div></div>
+                <div class="input-group"><label class="input-label">CO [% Vol]</label><input type="number" id="CO" step="0.01" placeholder="e.g. 0.5"><div class="conversion-preview" id="prev-CO"></div></div>
+                <div class="input-group"><label class="input-label">O₂ [% Vol]</label><input type="number" id="O2" step="0.01" placeholder="e.g. 1.2"><div class="conversion-preview" id="prev-O2"></div></div>
+                <div class="input-group"><label class="input-label">HC [ppm]</label><input type="number" id="HC_ppm" step="1" placeholder="e.g. 300"><div class="conversion-preview" id="prev-HC"></div></div>
+                <div class="input-group"><label class="input-label">NO<sub>x</sub> [ppm] (ref only)</label><input type="number" id="NOx_ppm" step="0.1" placeholder="e.g. 50"><div class="conversion-preview" id="prev-NOx"></div></div>
+            </div>
+        </div>
 
-<div class="grid">
-<label>CO₂ (%)<input id="co2"></label>
-<label>CO (%)<input id="co"></label>
-<label>O₂ (%)<input id="o2"></label>
-<label>NOₓ (ppm)<input id="no"></label>
-<label>HC (ppm)<input id="hc"></label>
-<label>Hcv<input id="hcv"></label>
-<label>Ocv<input id="ocv"></label>
-<label>n<input id="n" value="6"></label>
-</div>
+        <div class="collapsible-group mode-global" id="section-pressure-temp">
+            <div class="group-header">Pressure & Temperature</div>
+            <div class="group-content">
+                <div class="input-group"><label class="input-label">Pressure (P) [kPa]</label><input type="number" id="P_kPa" step="0.1" placeholder="e.g. 101.325"><div class="conversion-preview" id="prev-P"></div></div>
+                <div class="input-group"><label class="input-label">Molar Mass (M) [kg/mol]</label><input type="number" id="M" step="0.001" placeholder="e.g. 0.0289"><div class="conversion-preview" id="prev-M"></div></div>
+                <div class="input-group"><label class="input-label">Exhaust Temp (T<sub>actual</sub>) [°C]</label><input type="number" id="T_actual_C" step="1" placeholder="e.g. 300"><div class="conversion-preview" id="prev-T"></div></div>
+            </div>
+        </div>
 
-<button onclick="calcLambda()">Calculate</button>
-<div class="result">λ = <span id="lambda"></span></div>
-</div>
+        <div class="collapsible-group mode-global" id="section-energy-balance">
+            <div class="group-header">Energy Balance Inputs</div>
+            <div class="group-content">
+                <div class="input-group batch-hide-eb" id="eb-row-mw"><label class="input-label">Water Flow Rate [L/min]</label><input type="number" id="m_W" step="0.1" placeholder="e.g. 2.0"><div class="conversion-preview" id="prev-m_W"></div></div>
+                <div class="input-group"><label class="input-label">Exhaust C<sub>p</sub> (C<sub>PG</sub>) [kJ/(kg·K)]</label><input type="number" id="C_PG" step="0.01" placeholder="e.g. 1.09"><div class="conversion-preview" id="prev-C_PG"></div></div>
+                <div class="input-group batch-hide-eb" id="eb-row-tgi"><label class="input-label">Gas Inlet Temp (T<sub>GI</sub>) [°C]</label><input type="number" id="T_GI_C" step="1" placeholder="e.g. 400"><div class="conversion-preview" id="prev-T_GI"></div></div>
+                <div class="input-group batch-hide-eb" id="eb-row-tgo"><label class="input-label">Gas Outlet Temp (T<sub>GO</sub>) [°C]</label><input type="number" id="T_GO_C" step="1" placeholder="e.g. 350"><div class="conversion-preview" id="prev-T_GO"></div></div>
+                <div class="input-group batch-hide-eb" id="eb-row-twi"><label class="input-label">Water Inlet Temp (T<sub>WI</sub>) [°C]</label><input type="number" id="T_WI_C" step="1" placeholder="e.g. 25"><div class="conversion-preview" id="prev-T_WI"></div></div>
+                <div class="input-group batch-hide-eb" id="eb-row-two"><label class="input-label">Water Outlet Temp (T<sub>WO</sub>) [°C]</label><input type="number" id="T_WO_C" step="1" placeholder="e.g. 45"><div class="conversion-preview" id="prev-T_WO"></div></div>
+            </div>
+        </div>
+    </div>
 
-<!-- 3 -->
-<div class="section">
-<h3>3. A₀</h3>
-<div class="formula">
-\[
-A_0=\frac{22.4}{0.21}\left(\frac{C}{12}+\frac{H}{4}-\frac{O}{8}+\frac{S}{32}\right)
-\]
-</div>
+    <div class="main-content">
+        <div class="panel">
+            <div class="panel-title">Calculation Results</div>
+            <div class="summary-badges">
+                <div class="badge">ṁfuel: 7 decimals</div>
+                <div class="badge">λ, A₀, G′, ρ: 4 decimals</div>
+                <div class="badge">Flows & mass rates: 6 decimals</div>
+            </div>
+            <div class="results-grid">
+                <div class="result-card" id="card-m_fuel"><div class="result-label">ṁ<sub>fuel</sub></div><div class="result-value" id="val-m_fuel">—</div><div class="result-unit">kg/s</div><div class="result-equation">(Eq. 2.35)</div></div>
+                <div class="result-card" id="card-lambda"><div class="result-label">λ</div><div class="result-value" id="val-lambda">—</div><div class="result-unit">dimensionless</div><div class="result-equation">(Eq. 2.36)</div></div>
+                <div class="result-card" id="card-A0"><div class="result-label">A<sub>0</sub></div><div class="result-value" id="val-A0">—</div><div class="result-unit">m³<sub>N</sub>/kg<sub>fuel</sub></div><div class="result-equation">(Eq. 2.37)</div></div>
+                <div class="result-card" id="card-G_prime"><div class="result-label">G′</div><div class="result-value" id="val-G_prime">—</div><div class="result-unit">m³<sub>N</sub>/kg<sub>fuel</sub></div><div class="result-equation">(Eq. 2.40)</div></div>
+                <div class="result-card" id="card-Vdot_G_STD"><div class="result-label">V̇<sub>G,STD</sub></div><div class="result-value" id="val-Vdot_G_STD">—</div><div class="result-unit">m³/s</div><div class="result-equation">(Eq. 2.41)</div></div>
+                <div class="result-card" id="card-Vdot_G_actual"><div class="result-label">V̇<sub>G,actual</sub></div><div class="result-value" id="val-Vdot_G_actual">—</div><div class="result-unit">m³/s</div><div class="result-equation">(Eq. 2.42)</div></div>
+                <div class="result-card" id="card-rho_exhaust"><div class="result-label">ρ<sub>exhaust</sub></div><div class="result-value" id="val-rho_exhaust">—</div><div class="result-unit">kg/m³</div><div class="result-equation">(Eq. 2.30)</div></div>
+                <div class="result-card" id="card-m_G_Gprime"><div class="result-label">ṁ<sub>G,G′</sub></div><div class="result-value" id="val-m_G_Gprime">—</div><div class="result-unit">kg/s</div><div class="result-equation">(Eq. 2.43)</div></div>
+                <div class="result-card" id="card-m_G_EB"><div class="result-label">ṁ<sub>G,EB</sub></div><div class="result-value" id="val-m_G_EB">—</div><div class="result-unit">kg/s</div><div class="result-equation">(Eq. 2.45)</div><div id="val-m_W_tag" style="margin-top:4px;font-size:9px;color:#22d3ee;font-family:'JetBrains Mono',monospace;"></div></div>
+            </div>
+        </div>
 
-<div class="grid">
-<label>C<input id="C"></label>
-<label>H<input id="H"></label>
-<label>O<input id="O"></label>
-<label>S<input id="S"></label>
-</div>
+        <div class="subgrid">
+            <div class="panel">
+                <div class="panel-title">EB Trials</div>
+                <div class="mini-buttons" style="margin-bottom:12px;">
+                    <button id="addEbTrialBtn">+ Add EB Trial</button>
+                    <button id="clearEbTrialsBtn" class="danger-btn">Clear EB Trials</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><span class="th-main">Trial</span></th>
+                                <th><span class="th-main">Flow-water</span><span class="th-sub">L/min</span></th>
+                                <th><span class="th-main">ṁG,EB</span><span class="th-sub">kg/s</span></th>
+                                <th><span class="th-main">Action</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ebTrialsBody"></tbody>
+                    </table>
+                </div>
+                <div class="status-line" id="ebTrialsStatus">0 EB trials in current session</div>
+            </div>
 
-<button onclick="calcA0()">Calculate</button>
-<div class="result">A₀ = <span id="A0"></span></div>
-</div>
+            <div class="panel">
+                <div class="panel-title">Mass Flow Comparison</div>
+                <div class="chart-buttons" style="margin-bottom: 12px;">
+                    <button id="addPointBtn">+ Add Chart Point</button>
+                    <button id="clearChartBtn" class="danger-btn">Clear Chart</button>
+                </div>
+                <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
+            </div>
+        </div>
 
-<!-- 4 -->
-<div class="section">
-<h3>4. G′</h3>
-<div class="formula">
-\[
-G'=(\lambda-0.21)A_0+22.4\left(\frac{C}{12}+\frac{S}{32}+\frac{N}{28}\right)
-\]
-</div>
+        <div class="panel" id="batchInputPanel">
+            <div class="panel-title">Batch Input</div>
+            <div class="summary-badges" style="margin-bottom:12px;">
+                <div class="badge">Choose calculation target first</div>
+                <div class="badge">Batch uses existing formulas only</div>
+            </div>
+            <div class="summary-badges">
+                <div class="badge">Paste tab- or space-separated rows</div>
+                <div class="badge">One row = one speed point</div>
+                <div class="badge">Uses the same formulas and save logic</div>
+            </div>
+            <div class="input-group" style="margin-bottom:12px;">
+                <label class="input-label">Column order</label>
+                <div class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">
+                    Speed&nbsp;&nbsp;Vfuel&nbsp;&nbsp;HC&nbsp;&nbsp;CO&nbsp;&nbsp;NOx&nbsp;&nbsp;O2&nbsp;&nbsp;CO2&nbsp;&nbsp;TWI_1&nbsp;&nbsp;TWO_1&nbsp;&nbsp;TGI_1&nbsp;&nbsp;TGO_1&nbsp;&nbsp;TWI_2&nbsp;&nbsp;TWO_2&nbsp;&nbsp;TGI_2&nbsp;&nbsp;TGO_2
+                </div>
+            </div>
+            <div class="subgrid" style="grid-template-columns: minmax(340px, 1fr) 260px; align-items:start;">
+                <div>
+                    <div class="input-group">
+                        <label class="input-label">Paste table rows</label>
+                        <textarea id="batchInput" placeholder="1580\t20\t11\t0.36\t693\t2.6\t8.2\t34.3\t45.3\t51.2\t37.8\t34.6\t40.2\t49.6\t35.4\n1578\t22\t15\t0.32\t636\t4.0\t7.1\t34.4\t44.1\t51.1\t38.0\t35.0\t40.1\t49.0\t35.9" style="width:100%;min-height:150px;resize:vertical;padding:12px;background:#0d0f14;border:1px solid rgba(245, 158, 11, 0.3);border-radius:6px;color:#e5e7eb;font-family:'JetBrains Mono', monospace;font-size:12px;"></textarea>
+                    </div>
+                </div>
+                <div>
+                    <div class="input-group"><label class="input-label">Flow-water 1 [L/min]</label><input type="number" id="batchFlow1" step="0.1" value="1.2"></div>
+                    <div class="input-group"><label class="input-label">Flow-water 2 [L/min]</label><input type="number" id="batchFlow2" step="0.1" value="5.0"></div>
+                    <div class="mini-buttons">
+                        <button id="parseBatchBtn">Parse & Calculate</button>
+                        <button id="clearBatchBtn" class="danger-btn">Clear Batch</button>
+                    </div>
+                    <div class="status-line" id="batchStatus">Ready for batch paste</div>
+                </div>
+            </div>
+        </div>
 
-<div class="grid">
-<label>λ<input id="lam_g"></label>
-<label>A₀<input id="A0_g"></label>
-<label>C<input id="C_g"></label>
-<label>S<input id="S_g"></label>
-<label>N<input id="N_g"></label>
-</div>
+        <div class="panel">
+            <div class="panel-title">Saved Results</div>
+            <div class="mini-buttons" style="margin-bottom:12px;">
+                <button id="saveSessionBtn">Save Results</button>
+                <button id="exportPDFBtn">Export PDF</button>
+                <button id="exportExcelBtn" class="secondary-btn">Export Results Excel</button>
+                <button id="exportInputsExcelBtn" class="secondary-btn">Export Inputs Excel</button>
+                <button id="clearSavedResultsBtn" class="danger-btn">Clear Saved Results</button>
+            </div>
+            <div class="table-wrap">
+                <table id="savedResultsTable">
+                    <thead id="savedResultsHead"></thead>
+                    <tbody id="savedResultsBody"></tbody>
+                </table>
+            </div>
+            <div class="status-line" id="savedResultsStatus">0 saved rows</div>
+        </div>
 
-<button onclick="calcG()">Calculate</button>
-<div class="result">G′ = <span id="G"></span> m³/kg</div>
-</div>
-
-<!-- 5 -->
-<div class="section">
-<h3>5. Vstd</h3>
-<div class="formula">
-\[
-V_{std}=G' \cdot \dot{m}_{fuel}
-\]
-</div>
-
-<div class="grid">
-<label>G′<input id="G_v"></label>
-<label>ṁfuel<input id="mf_v"></label>
-</div>
-
-<button onclick="calcVstd()">Calculate</button>
-<div class="result">Vstd = <span id="Vstd"></span> m³/s</div>
-</div>
-
-<!-- 6 -->
-<div class="section">
-<h3>6. Vactual</h3>
-<div class="formula">
-\[
-V_{actual}=V_{std}\frac{T_{actual}}{273.15}
-\]
-</div>
-
-<div class="grid">
-<label>Vstd<input id="Vstd_a"></label>
-<label>T (°C)<input id="T_a"></label>
-</div>
-
-<button onclick="calcVactual()">Calculate</button>
-<div class="result">Vactual = <span id="Vactual"></span> m³/s</div>
-</div>
-
-<!-- 7 -->
-<div class="section">
-<h3>7. Density</h3>
-<div class="formula">
-\[
-\rho=\frac{PM}{RT}
-\]
-</div>
-
-<div class="grid">
-<label>P (Pa)<input id="P"></label>
-<label>M (kg/kmol)<input id="M"></label>
-<label>T (°C)<input id="T_d"></label>
-</div>
-
-<button onclick="calcDensity()">Calculate</button>
-<div class="result">ρ = <span id="rho"></span> kg/m³</div>
-</div>
-
-<!-- 8 -->
-<div class="section">
-<h3>8. Exhaust Flow</h3>
-<div class="formula">
-\[
-\dot{m}=\rho \cdot V_{actual}
-\]
-</div>
-
-<div class="grid">
-<label>ρ<input id="rho_e"></label>
-<label>Vactual<input id="V_e"></label>
-</div>
-
-<button onclick="calcExhaust()">Calculate</button>
-<div class="result">ṁ exhaust = <span id="mex"></span> kg/s</div>
-</div>
-
+        <div class="panel">
+            <div class="panel-title">Input Records</div>
+            <div class="table-wrap">
+                <table id="savedInputsTable">
+                    <thead id="savedInputsHead"></thead>
+                    <tbody id="savedInputsBody"></tbody>
+                </table>
+            </div>
+            <div class="status-line" id="savedInputsStatus">0 saved rows</div>
+        </div>
+    </div>
 </div>
 
 <script>
+    // ============================================================
+    // FORMULAS AND CALCULATIONS
+    // ============================================================
 
-function num(id){
-return parseFloat(document.getElementById(id).value);
-}
+    // Eq. 2.35 — Fuel mass flow rate
+    function calcMFuel(Vdot_f_ml_min, rho_f_kg_l) {
+        if (!Vdot_f_ml_min || !rho_f_kg_l) return null;
+        return (Vdot_f_ml_min * rho_f_kg_l) / (60 * 1000);
+    }
 
-// Fuel
-function calcFuel(){
-let v=num("vfuel"), r=num("rho_fuel");
-if(isNaN(v)||isNaN(r)) return alert("กรอก Fuel ให้ครบ");
-mfuel.innerText=((v*r)/(60*1000)).toFixed(7);
-}
+    // Eq. 2.36 — Brettschneider
+    function calcLambda(CO2, CO, O2, HC_ppm, NOx_ppm, Hcv, Ocv, n) {
+        const HC_pct = HC_ppm / 10000;
+        const NO_pct = NOx_ppm / 10000;
 
-// Lambda (FIXED)
-function calcLambda(){
+        const ratio = 3.5 / (3.5 + CO / CO2);
 
-let co2=num("co2");
-let co=num("co");
-let o2=num("o2");
-let no=num("no")/10000;
-let hc=num("hc")/10000;
+        const numerator =
+            CO2
+            + CO / 2
+            + O2
+            + NO_pct / 2
+            + ((Hcv / 4) * ratio - Ocv / 2) * (CO2 + CO);
 
-let hcv=num("hcv");
-let ocv=num("ocv");
-let n=num("n");
+        const denominator =
+            (1 + Hcv / 4 - Ocv / 2)
+            * (CO2 + CO + n * HC_pct);
 
-if([co2,co,o2,no,hc,hcv,ocv,n].some(isNaN))
-return alert("กรอก Lambda ให้ครบ");
+        return numerator / denominator;
+    }
 
-if(co2<=0)
-return alert("CO2 ห้ามเป็น 0");
+    // Eq. 2.37 — Stoichiometric air volume
+    function calcA0(C, H, O, S) {
+        if (!C && C !== 0) return null;
+        if (!H && H !== 0) return null;
+        if (!O && O !== 0) return null;
+        if (!S && S !== 0) return null;
 
-let lam=(co2+co/2+o2+no/2+
-((hcv/4)*(3.5/(3.5+(co/co2)))-(ocv/2))*(co2+co))/
-((1+hcv/4-ocv/2)*(co2+co+n*hc));
+        const molar_vol = 22.4;
+        const O2_fraction = 0.21;
+        return (molar_vol / O2_fraction) * (C / 12 + (1 / 4) * (H - O / 8) + S / 32);
+    }
 
-lambda.innerText=lam.toFixed(6);
-}
+    // Eq. 2.40 — Dry exhaust gas specific volume
+    function calcGPrime(lambda, A0, C, S, N) {
+        if (!lambda && lambda !== 0) return null;
+        if (!A0 && A0 !== 0) return null;
+        if (!C && C !== 0) return null;
+        if (!S && S !== 0) return null;
+        if (!N && N !== 0) return null;
 
-// A0
-function calcA0(){
-let C=num("C"), H=num("H"), O=num("O"), S=num("S");
-if([C,H,O,S].some(isNaN)) return alert("กรอก A0 ให้ครบ");
+        const molar_vol = 22.4;
+        return (lambda - 0.21) * A0 + molar_vol * (C / 12 + S / 32 + N / 28);
+    }
 
-A0.innerText=((22.4/0.21)*((C/12)+(H/4)-(O/8)+(S/32))).toFixed(6);
-}
+    // Eq. 2.41 — Volume flow rate at standard conditions
+    function calcVdotGSTD(G_prime, m_fuel) {
+        if (!G_prime && G_prime !== 0) return null;
+        if (!m_fuel && m_fuel !== 0) return null;
+        return G_prime * m_fuel;
+    }
 
-// G
-function calcG(){
-let lam=num("lam_g"), A0v=num("A0_g");
-let C=num("C_g"), S=num("S_g"), N=num("N_g");
+    // Eq. 2.42 — Actual volume flow rate (corrected for temperature)
+    function calcVdotGActual(Vdot_G_STD, T_actual_C) {
+        if (!Vdot_G_STD && Vdot_G_STD !== 0) return null;
+        if (!T_actual_C && T_actual_C !== 0) return null;
 
-if([lam,A0v,C,S,N].some(isNaN)) return alert("กรอก G′ ให้ครบ");
+        const T_actual_K = T_actual_C + 273.15;
+        const T_STD_K = 273.15;
+        return Vdot_G_STD * (T_actual_K / T_STD_K);
+    }
 
-G.innerText=((lam-0.21)*A0v+22.4*((C/12)+(S/32)+(N/28))).toFixed(6);
-}
+    // Eq. 2.30 — Exhaust gas density (ideal gas law)
+    function calcRhoExhaust(P_kPa, M, T_C) {
+        if (!P_kPa && P_kPa !== 0) return null;
+        if (!M && M !== 0) return null;
+        if (!T_C && T_C !== 0) return null;
 
-// Vstd
-function calcVstd(){
-let Gv=num("G_v"), mf=num("mf_v");
-if([Gv,mf].some(isNaN)) return alert("กรอก Vstd ให้ครบ");
+        const P_Pa = P_kPa * 1000;
+        const T_K = T_C + 273.15;
+        const R = 8.314;
+        return (P_Pa * M) / (R * T_K);
+    }
 
-Vstd.innerText=(Gv*mf).toFixed(6);
-}
+    // Eq. 2.43 — Mass flow rate via G' method
+    function calcMGPrime(rho_exhaust, Vdot_G_actual) {
+        if (!rho_exhaust && rho_exhaust !== 0) return null;
+        if (!Vdot_G_actual && Vdot_G_actual !== 0) return null;
+        return rho_exhaust * Vdot_G_actual;
+    }
 
-// Vactual
-function calcVactual(){
-let Vstdv=num("Vstd_a"), T=num("T_a")+273.15;
-if(isNaN(Vstdv)||isNaN(T)) return alert("กรอก Vactual ให้ครบ");
+    // Eq. 2.45 — Energy Balance Method
+    function calcMdotEB(m_W, C_PG, T_GI_C, T_GO_C, T_WI_C, T_WO_C) {
+        const C_PW = 4.186; // kJ/(kg·K), hardcoded constant
 
-Vactual.innerText=(Vstdv*(T/273.15)).toFixed(6);
-}
+        const T_GI = T_GI_C + 273.15;
+        const T_GO = T_GO_C + 273.15;
+        const T_WI = T_WI_C + 273.15;
+        const T_WO = T_WO_C + 273.15;
 
-// Density
-function calcDensity(){
-let P=num("P"), M=num("M"), T=num("T_d")+273.15;
-if([P,M,T].some(isNaN)) return alert("กรอก Density ให้ครบ");
+        return m_W * (C_PW / C_PG) * ((T_WO - T_WI) / (T_GI - T_GO));
+    }
 
-rho.innerText=((P*M)/(8314*T)).toFixed(6);
-}
+    // ============================================================
+    // UI STATE
+    // ============================================================
+    const inputs = {
+        Hcv: document.getElementById('Hcv'), Ocv: document.getElementById('Ocv'), C: document.getElementById('C'), H: document.getElementById('H'), O: document.getElementById('O'), S: document.getElementById('S'), N: document.getElementById('N'), n: document.getElementById('n'),
+        Vdot_f: document.getElementById('Vdot_f'), rho_f: document.getElementById('rho_f'),
+        CO2: document.getElementById('CO2'), CO: document.getElementById('CO'), O2: document.getElementById('O2'), HC_ppm: document.getElementById('HC_ppm'), NOx_ppm: document.getElementById('NOx_ppm'),
+        P_kPa: document.getElementById('P_kPa'), M: document.getElementById('M'), T_actual_C: document.getElementById('T_actual_C'),
+        m_W: document.getElementById('m_W'), C_PG: document.getElementById('C_PG'), T_GI_C: document.getElementById('T_GI_C'), T_GO_C: document.getElementById('T_GO_C'), T_WI_C: document.getElementById('T_WI_C'), T_WO_C: document.getElementById('T_WO_C')
+    };
 
-// Exhaust
-function calcExhaust(){
-let r=num("rho_e"), V=num("V_e");
-if([r,V].some(isNaN)) return alert("กรอก Exhaust ให้ครบ");
+    const results = {
+        m_fuel: document.getElementById('val-m_fuel'),
+        lambda: document.getElementById('val-lambda'),
+        A0: document.getElementById('val-A0'),
+        G_prime: document.getElementById('val-G_prime'),
+        Vdot_G_STD: document.getElementById('val-Vdot_G_STD'),
+        Vdot_G_actual: document.getElementById('val-Vdot_G_actual'),
+        rho_exhaust: document.getElementById('val-rho_exhaust'),
+        m_G_Gprime: document.getElementById('val-m_G_Gprime'),
+        m_G_EB: document.getElementById('val-m_G_EB')
+    };
 
-mex.innerText=(r*V).toFixed(6);
-}
+    const resultCards = {
+        m_fuel: document.getElementById('card-m_fuel'),
+        lambda: document.getElementById('card-lambda'),
+        A0: document.getElementById('card-A0'),
+        G_prime: document.getElementById('card-G_prime'),
+        Vdot_G_STD: document.getElementById('card-Vdot_G_STD'),
+        Vdot_G_actual: document.getElementById('card-Vdot_G_actual'),
+        rho_exhaust: document.getElementById('card-rho_exhaust'),
+        m_G_Gprime: document.getElementById('card-m_G_Gprime'),
+        m_G_EB: document.getElementById('card-m_G_EB')
+    };
 
+    let chart = null;
+    let currentCalc = null;
+    let currentEbTrials = [];
+    let savedSessions = [];
+    let savedSessionCounter = 0;
+    const flowColorPalette = ['#22d3ee', '#10b981', '#ef4444', '#a855f7', '#eab308', '#3b82f6', '#f97316', '#14b8a6'];
+
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    function parseNullable(value) { return value !== '' ? parseFloat(value) : null; }
+    function formatValue(value, decimals) {
+        return value === null || value === undefined || isNaN(value) || !isFinite(value) ? '—' : Number(value).toFixed(decimals);
+    }
+    function escapeHtml(text) {
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+    function formatFlowLabel(value) {
+        return value === null || value === undefined || isNaN(value) ? '—' : `${Number(value).toFixed(2)} L/min`;
+    }
+    function buildTheadHtml(columns) {
+        return `<tr>${columns.map(col => `<th><span class="th-main">${col.main}</span>${col.sub ? `<span class="th-sub">${col.sub}</span>` : ''}</th>`).join('')}</tr>`;
+    }
+
+
+    let currentMode = 'manual';
+
+    function setMode(mode) {
+        currentMode = mode;
+
+        const manualBtn = document.getElementById('manualModeBtn');
+        const batchBtn = document.getElementById('batchModeBtn');
+        const modeNote = document.getElementById('modeNote');
+        const batchPanel = document.getElementById('batchInputPanel');
+
+        const manualOnlySections = document.querySelectorAll('.mode-manual-only');
+        const batchPartialRows = document.querySelectorAll('.batch-hide-eb');
+
+        if (mode === 'manual') {
+            manualBtn.classList.add('active');
+            batchBtn.classList.remove('active');
+            modeNote.textContent = 'Manual mode: input one case at a time';
+
+            manualOnlySections.forEach(el => el.classList.remove('is-hidden'));
+            batchPartialRows.forEach(el => el.classList.remove('is-hidden'));
+            if (batchPanel) batchPanel.classList.add('is-hidden');
+        } else {
+            manualBtn.classList.remove('active');
+            batchBtn.classList.add('active');
+            modeNote.textContent = 'Batch mode: set global values, then paste table rows';
+
+            manualOnlySections.forEach(el => el.classList.add('is-hidden'));
+            batchPartialRows.forEach(el => el.classList.add('is-hidden'));
+            if (batchPanel) batchPanel.classList.remove('is-hidden');
+        }
+    }
+
+    function initModeToggle() {
+        const manualBtn = document.getElementById('manualModeBtn');
+        const batchBtn = document.getElementById('batchModeBtn');
+
+        if (manualBtn) manualBtn.addEventListener('click', () => setMode('manual'));
+        if (batchBtn) batchBtn.addEventListener('click', () => setMode('batch'));
+
+        setMode('manual');
+    }
+
+    // ============================================================
+    // INPUT GUARDS
+    // ============================================================
+    function attachNumberInputGuards() {
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('wheel', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                }
+            });
+        });
+    }
+
+    // ============================================================
+    // COLLAPSIBLE SECTIONS
+    // ============================================================
+    document.querySelectorAll('.group-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            this.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+        });
+    });
+
+    // ============================================================
+    // CONVERSION PREVIEWS
+    // ============================================================
+    function updateConversionPreviews() {
+        const vdot_f = inputs.Vdot_f.value;
+        document.getElementById('prev-Vdot_f').textContent = vdot_f ? `= ${((vdot_f * 60) / 1000).toFixed(4)} L/h` : '';
+
+        const T_actual = inputs.T_actual_C.value;
+        document.getElementById('prev-T').textContent = T_actual ? `= ${(parseFloat(T_actual) + 273.15).toFixed(2)} K` : '';
+
+        const P_kPa = inputs.P_kPa.value;
+        document.getElementById('prev-P').textContent = P_kPa ? `= ${(parseFloat(P_kPa) * 1000).toFixed(0)} Pa` : '';
+
+        const HC_ppm = inputs.HC_ppm.value;
+        document.getElementById('prev-HC').textContent = HC_ppm ? `= ${(parseFloat(HC_ppm) / 10000).toFixed(6)} % Vol` : '';
+
+        const NOx_ppm = inputs.NOx_ppm.value;
+        document.getElementById('prev-NOx').textContent = NOx_ppm ? `= ${(parseFloat(NOx_ppm) / 10000).toFixed(6)} % Vol (ref)` : '';
+
+        const m_W_lpm = inputs.m_W.value;
+        document.getElementById('prev-m_W').textContent = m_W_lpm ? `= ${(parseFloat(m_W_lpm) / 60).toFixed(6)} kg/s` : '';
+
+        const T_GI = inputs.T_GI_C.value;
+        document.getElementById('prev-T_GI').textContent = T_GI ? `= ${(parseFloat(T_GI) + 273.15).toFixed(2)} K` : '';
+
+        const T_GO = inputs.T_GO_C.value;
+        document.getElementById('prev-T_GO').textContent = T_GO ? `= ${(parseFloat(T_GO) + 273.15).toFixed(2)} K` : '';
+
+        const T_WI = inputs.T_WI_C.value;
+        document.getElementById('prev-T_WI').textContent = T_WI ? `= ${(parseFloat(T_WI) + 273.15).toFixed(2)} K` : '';
+
+        const T_WO = inputs.T_WO_C.value;
+        document.getElementById('prev-T_WO').textContent = T_WO ? `= ${(parseFloat(T_WO) + 273.15).toFixed(2)} K` : '';
+    }
+
+    function getCurrentInputSnapshot() {
+        return {
+            rpm: parseNullable(document.getElementById('rpm').value),
+            Hcv: parseNullable(inputs.Hcv.value), Ocv: parseNullable(inputs.Ocv.value), C: parseNullable(inputs.C.value), H: parseNullable(inputs.H.value), O: parseNullable(inputs.O.value), S: parseNullable(inputs.S.value), N: parseNullable(inputs.N.value), n: parseNullable(inputs.n.value),
+            Vdot_f: parseNullable(inputs.Vdot_f.value), rho_f: parseNullable(inputs.rho_f.value),
+            CO2: parseNullable(inputs.CO2.value), CO: parseNullable(inputs.CO.value), O2: parseNullable(inputs.O2.value), HC_ppm: parseNullable(inputs.HC_ppm.value), NOx_ppm: parseNullable(inputs.NOx_ppm.value),
+            P_kPa: parseNullable(inputs.P_kPa.value), M: parseNullable(inputs.M.value), T_actual_C: parseNullable(inputs.T_actual_C.value),
+            m_W_lpm: parseNullable(inputs.m_W.value), C_PG: parseNullable(inputs.C_PG.value), T_GI_C: parseNullable(inputs.T_GI_C.value), T_GO_C: parseNullable(inputs.T_GO_C.value), T_WI_C: parseNullable(inputs.T_WI_C.value), T_WO_C: parseNullable(inputs.T_WO_C.value)
+        };
+    }
+
+    // ============================================================
+    // MAIN CALCULATION FUNCTION
+    // ============================================================
+    function calculate() {
+        updateConversionPreviews();
+
+        const snapshot = getCurrentInputSnapshot();
+        const m_W = snapshot.m_W_lpm !== null ? snapshot.m_W_lpm / 60 : null;
+
+        const m_fuel = calcMFuel(snapshot.Vdot_f, snapshot.rho_f);
+        const lambda = calcLambda(snapshot.CO2, snapshot.CO, snapshot.O2, snapshot.HC_ppm, snapshot.NOx_ppm, snapshot.Hcv, snapshot.Ocv, snapshot.n);
+        const A0 = calcA0(snapshot.C, snapshot.H, snapshot.O, snapshot.S);
+        const G_prime = calcGPrime(lambda, A0, snapshot.C, snapshot.S, snapshot.N);
+        const Vdot_G_STD = calcVdotGSTD(G_prime, m_fuel);
+        const Vdot_G_actual = calcVdotGActual(Vdot_G_STD, snapshot.T_actual_C);
+        const rho_exhaust = calcRhoExhaust(snapshot.P_kPa, snapshot.M, snapshot.T_actual_C);
+        const m_G_Gprime = calcMGPrime(rho_exhaust, Vdot_G_actual);
+        const m_G_EB = calcMdotEB(m_W, snapshot.C_PG, snapshot.T_GI_C, snapshot.T_GO_C, snapshot.T_WI_C, snapshot.T_WO_C);
+
+        currentCalc = { ...snapshot, m_W, m_fuel, lambda, A0, G_prime, Vdot_G_STD, Vdot_G_actual, rho_exhaust, m_G_Gprime, m_G_EB };
+
+        updateResult('m_fuel', m_fuel, 7);
+        updateResult('lambda', lambda, 4);
+        updateResult('A0', A0, 4);
+        updateResult('G_prime', G_prime, 4);
+        updateResult('Vdot_G_STD', Vdot_G_STD, 6);
+        updateResult('Vdot_G_actual', Vdot_G_actual, 6);
+        updateResult('rho_exhaust', rho_exhaust, 4);
+        updateResult('m_G_Gprime', m_G_Gprime, 6);
+        updateResult('m_G_EB', m_G_EB, 6);
+
+        const m_W_tag = document.getElementById('val-m_W_tag');
+        m_W_tag.textContent = snapshot.m_W_lpm !== null ? `@ ${snapshot.m_W_lpm.toFixed(2)} L/min` : '';
+    }
+
+    function updateResult(key, value, decimals) {
+        if (value === null || isNaN(value) || !isFinite(value)) {
+            results[key].textContent = '—';
+        } else {
+            results[key].textContent = value.toFixed(decimals);
+            resultCards[key].classList.remove('pulse');
+            void resultCards[key].offsetWidth;
+            resultCards[key].classList.add('pulse');
+        }
+    }
+
+    Object.values(inputs).forEach(input => input.addEventListener('input', calculate));
+    document.getElementById('rpm').addEventListener('input', calculate);
+
+    // ============================================================
+    // EB TRIALS
+    // ============================================================
+    function renderEbTrials() {
+        const tbody = document.getElementById('ebTrialsBody');
+        tbody.innerHTML = '';
+
+        currentEbTrials.forEach((trial, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${trial.trialNo}</td>
+                <td>${escapeHtml(trial.flowLabel)}</td>
+                <td>${escapeHtml(trial.m_G_EB_text)}</td>
+                <td><button class="trial-delete" data-index="${index}">Delete</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('ebTrialsStatus').textContent = `${currentEbTrials.length} EB trials in current session`;
+
+        tbody.querySelectorAll('.trial-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index, 10);
+                currentEbTrials.splice(index, 1);
+                currentEbTrials.forEach((trial, i) => trial.trialNo = i + 1);
+                renderEbTrials();
+            });
+        });
+    }
+
+    function getCurrentTrialFromCalc(calc) {
+        return {
+            trialNo: currentEbTrials.length + 1,
+            flowValue: calc.m_W_lpm,
+            flowLabel: formatFlowLabel(calc.m_W_lpm),
+            m_G_EB: calc.m_G_EB,
+            m_G_EB_text: formatValue(calc.m_G_EB, 6),
+            energyInputs: {
+                m_W_lpm: calc.m_W_lpm,
+                T_GI_C: calc.T_GI_C,
+                T_GO_C: calc.T_GO_C,
+                T_WI_C: calc.T_WI_C,
+                T_WO_C: calc.T_WO_C,
+                C_PG: calc.C_PG
+            }
+        };
+    }
+
+    document.getElementById('addEbTrialBtn').addEventListener('click', () => {
+        calculate();
+        if (!currentCalc || currentCalc.m_G_EB === null || isNaN(currentCalc.m_G_EB) || !isFinite(currentCalc.m_G_EB)) {
+            alert('ค่า ṁG,EB ยังไม่พร้อมสำหรับการเพิ่ม trial');
+            return;
+        }
+        currentEbTrials.push(getCurrentTrialFromCalc(currentCalc));
+        renderEbTrials();
+    });
+
+    document.getElementById('clearEbTrialsBtn').addEventListener('click', () => {
+        currentEbTrials = [];
+        renderEbTrials();
+    });
+
+    // ============================================================
+    // CHART
+    // ============================================================
+    function getEbDatasetByFlow(flowValue) {
+        const flowKey = Number(flowValue).toFixed(2);
+        let ds = chart.data.datasets.find(d => d.flowKey === flowKey);
+        if (!ds) {
+            const color = flowColorPalette[(chart.data.datasets.length - 1) % flowColorPalette.length];
+            ds = {
+                type: 'scatter',
+                label: `ṁG,EB @ ${flowKey} L/min`,
+                flowKey,
+                showLine: false,
+                borderColor: color,
+                backgroundColor: color,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                data: []
+            };
+            chart.data.datasets.push(ds);
+        }
+        return ds;
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        type: 'scatter',
+                        label: "ṁG,G′",
+                        flowKey: 'GPRIME',
+                        borderColor: '#f59e0b',
+                        backgroundColor: '#f59e0b',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        showLine: false,
+                        data: []
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e5e7eb',
+                            font: { family: "'JetBrains Mono', monospace", size: 12, weight: 600 },
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        min: 500,
+                        max: 4000,
+                        ticks: {
+                            stepSize: 500,
+                            color: '#9ca3af',
+                            font: { family: "'JetBrains Mono', monospace", size: 11 },
+                            callback: value => value + ' RPM'
+                        },
+                        grid: { color: 'rgba(245, 158, 11, 0.05)' },
+                        title: { display: true, text: 'Engine Speed (RPM)', color: '#e5e7eb', font: { family: "'Barlow Condensed', sans-serif", size: 13, weight: 600 } }
+                    },
+                    y: {
+                        ticks: { color: '#9ca3af', font: { family: "'JetBrains Mono', monospace", size: 11 } },
+                        grid: { color: 'rgba(245, 158, 11, 0.1)' },
+                        title: { display: true, text: 'Mass Flow Rate (kg/s)', color: '#e5e7eb', font: { family: "'Barlow Condensed', sans-serif", size: 13, weight: 600 } }
+                    }
+                }
+            }
+        });
+    }
+
+    function addSessionToChart(session) {
+        if (!chart || !session || session.rpm === null) return;
+
+        if (session.baseResults.m_G_Gprime !== null && isFinite(session.baseResults.m_G_Gprime)) {
+            chart.data.datasets[0].data.push({ x: session.rpm, y: session.baseResults.m_G_Gprime });
+        }
+
+        session.ebTrials.forEach(trial => {
+            if (trial.m_G_EB !== null && isFinite(trial.m_G_EB)) {
+                const ds = getEbDatasetByFlow(trial.flowValue);
+                ds.data.push({ x: session.rpm, y: trial.m_G_EB });
+            }
+        });
+        chart.update();
+    }
+
+    function addCurrentPointToChart() {
+        calculate();
+        if (!currentCalc || currentCalc.rpm === null || currentCalc.m_G_Gprime === null || !isFinite(currentCalc.m_G_Gprime)) return;
+
+        chart.data.datasets[0].data.push({ x: currentCalc.rpm, y: currentCalc.m_G_Gprime });
+
+        const trials = getTrialsToSave();
+        trials.forEach(trial => {
+            if (trial.m_G_EB !== null && isFinite(trial.m_G_EB)) {
+                const ds = getEbDatasetByFlow(trial.flowValue);
+                ds.data.push({ x: currentCalc.rpm, y: trial.m_G_EB });
+            }
+        });
+        chart.update();
+    }
+
+    document.getElementById('addPointBtn').addEventListener('click', addCurrentPointToChart);
+
+    document.getElementById('clearChartBtn').addEventListener('click', () => {
+        if (chart) {
+            chart.data.datasets = [chart.data.datasets[0]];
+            chart.data.datasets[0].data = [];
+            chart.update();
+        }
+    });
+
+    const BATCH_MODE_SPECS = {
+        full: {
+            label: 'Full calculation',
+            columns: ['Speed','Vfuel','HC','CO','NOx','O2','CO2','TWI_1','TWO_1','TGI_1','TGO_1','TWI_2','TWO_2','TGI_2','TGO_2'],
+            requiredGlobals: ['Hcv','Ocv','C','H','O','S','N','n','rho_f','P_kPa','M','T_actual_C','C_PG'],
+            parser: vals => ({ speed: vals[0], vfuel: vals[1], hc: vals[2], co: vals[3], nox: vals[4], o2: vals[5], co2: vals[6], twi1: vals[7], two1: vals[8], tgi1: vals[9], tgo1: vals[10], twi2: vals[11], two2: vals[12], tgi2: vals[13], tgo2: vals[14] })
+        },
+        eb_only: {
+            label: 'Energy Balance only',
+            columns: ['Speed','TWI_1','TWO_1','TGI_1','TGO_1','TWI_2','TWO_2','TGI_2','TGO_2'],
+            requiredGlobals: ['C_PG'],
+            parser: vals => ({ speed: vals[0], twi1: vals[1], two1: vals[2], tgi1: vals[3], tgo1: vals[4], twi2: vals[5], two2: vals[6], tgi2: vals[7], tgo2: vals[8] })
+        },
+        lambda_only: {
+            label: 'Lambda only',
+            columns: ['Speed','HC','CO','NOx','O2','CO2'],
+            requiredGlobals: ['Hcv','Ocv','n'],
+            parser: vals => ({ speed: vals[0], hc: vals[1], co: vals[2], nox: vals[3], o2: vals[4], co2: vals[5] })
+        },
+        gprime_only: {
+            label: 'G′ method only',
+            columns: ['Speed','Vfuel','HC','CO','NOx','O2','CO2'],
+            requiredGlobals: ['Hcv','Ocv','C','H','O','S','N','n','rho_f','P_kPa','M','T_actual_C'],
+            parser: vals => ({ speed: vals[0], vfuel: vals[1], hc: vals[2], co: vals[3], nox: vals[4], o2: vals[5], co2: vals[6] })
+        }
+    };
+
+    function getBatchSpec() {
+        const key = document.getElementById('batchCalcType')?.value || 'full';
+        return { key, ...BATCH_MODE_SPECS[key] };
+    }
+
+    function updateBatchModeUI() {
+        const spec = getBatchSpec();
+        const order = document.getElementById('batchColumnOrder');
+        const note = document.getElementById('batchRequiredNote');
+        const flowGroups = [document.getElementById('batchFlow1')?.closest('.input-group'), document.getElementById('batchFlow2')?.closest('.input-group')];
+        if (order) order.textContent = spec.columns.join(' ');
+        if (note) note.textContent = `Required manual inputs: ${spec.requiredGlobals.join(', ')}`;
+        const needsFlow = spec.key === 'full' || spec.key === 'eb_only';
+        flowGroups.forEach(el => { if (el) el.classList.toggle('is-hidden', !needsFlow); });
+    }
+
+    function validateBatchGlobals(spec) {
+        const missing = spec.requiredGlobals.filter(key => parseNullable(inputs[key]?.value ?? '') === null);
+        return missing;
+    }
+
+    function clearRowSpecificInputs() {
+        document.getElementById('rpm').value = '';
+        inputs.Vdot_f.value = '';
+        inputs.HC_ppm.value = '';
+        inputs.CO.value = '';
+        inputs.NOx_ppm.value = '';
+        inputs.O2.value = '';
+        inputs.CO2.value = '';
+        inputs.m_W.value = '';
+        inputs.T_GI_C.value = '';
+        inputs.T_GO_C.value = '';
+        inputs.T_WI_C.value = '';
+        inputs.T_WO_C.value = '';
+    }
+
+    // ============================================================
+    // BATCH INPUT
+    // ============================================================
+    function parseBatchLines(rawText) {
+        return rawText
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .filter(line => !/^avg\b/i.test(line));
+    }
+
+    function setBaseInputsFromBatchRow(row) {
+        clearRowSpecificInputs();
+        if (row.speed !== undefined) document.getElementById('rpm').value = row.speed;
+        if (row.vfuel !== undefined) inputs.Vdot_f.value = row.vfuel;
+        if (row.hc !== undefined) inputs.HC_ppm.value = row.hc;
+        if (row.co !== undefined) inputs.CO.value = row.co;
+        if (row.nox !== undefined) inputs.NOx_ppm.value = row.nox;
+        if (row.o2 !== undefined) inputs.O2.value = row.o2;
+        if (row.co2 !== undefined) inputs.CO2.value = row.co2;
+    }
+
+    function buildTrialFromBatch(flowValue, twi, two, tgi, tgo) {
+        const m_W = flowValue / 60;
+        const C_PG = parseNullable(inputs.C_PG.value);
+        const m_G_EB = calcMdotEB(m_W, C_PG, tgi, tgo, twi, two);
+        return {
+            trialNo: currentEbTrials.length + 1,
+            flowValue,
+            flowLabel: formatFlowLabel(flowValue),
+            m_G_EB,
+            m_G_EB_text: formatValue(m_G_EB, 6),
+            energyInputs: {
+                m_W_lpm: flowValue,
+                T_GI_C: tgi,
+                T_GO_C: tgo,
+                T_WI_C: twi,
+                T_WO_C: two,
+                C_PG: C_PG
+            }
+        };
+    }
+
+    function parseBatch() {
+        const raw = document.getElementById('batchInput').value.trim();
+        const status = document.getElementById('batchStatus');
+        const spec = getBatchSpec();
+
+        if (!raw) {
+            status.textContent = 'No batch data pasted';
+            return;
+        }
+
+        const missingGlobals = validateBatchGlobals(spec);
+        if (missingGlobals.length > 0) {
+            alert(`Please enter required manual inputs first: ${missingGlobals.join(', ')}`);
+            return;
+        }
+
+        const needsFlow = spec.key === 'full' || spec.key === 'eb_only';
+        const flow1 = needsFlow ? parseNullable(document.getElementById('batchFlow1').value) : null;
+        const flow2 = needsFlow ? parseNullable(document.getElementById('batchFlow2').value) : null;
+        if (needsFlow && (flow1 === null || flow2 === null)) {
+            alert('Please enter Flow-water 1 and Flow-water 2');
+            return;
+        }
+
+        const lines = parseBatchLines(raw);
+        let successCount = 0;
+        let skipCount = 0;
+        const rowErrors = [];
+
+        lines.forEach((line, idx) => {
+            const cols = line.split(/	|\s+/).filter(Boolean);
+            if (cols.length < spec.columns.length) {
+                skipCount += 1;
+                rowErrors.push(`Row ${idx + 1}: expected ${spec.columns.length} columns, got ${cols.length}`);
+                return;
+            }
+
+            const values = cols.slice(0, spec.columns.length).map(v => Number(v));
+            const badIndex = values.findIndex(v => Number.isNaN(v));
+            if (badIndex !== -1) {
+                skipCount += 1;
+                rowErrors.push(`Row ${idx + 1}: invalid number at ${spec.columns[badIndex]}`);
+                return;
+            }
+
+            const row = spec.parser(values);
+            setBaseInputsFromBatchRow(row);
+            calculate();
+
+            currentEbTrials = [];
+            if (spec.key === 'full' || spec.key === 'eb_only') {
+                currentEbTrials.push(buildTrialFromBatch(flow1, row.twi1, row.two1, row.tgi1, row.tgo1));
+                currentEbTrials.push(buildTrialFromBatch(flow2, row.twi2, row.two2, row.tgi2, row.tgo2));
+            }
+            renderEbTrials();
+
+            const savedSession = saveCurrentSession();
+            if (savedSession) {
+                addSessionToChart(savedSession);
+                successCount += 1;
+            } else {
+                skipCount += 1;
+                rowErrors.push(`Row ${idx + 1}: could not save session`);
+            }
+        });
+
+        currentEbTrials = [];
+        renderEbTrials();
+        const errorText = rowErrors.length > 0 ? ` | ${rowErrors.slice(0, 3).join(' ; ')}${rowErrors.length > 3 ? ' ...' : ''}` : '';
+        status.textContent = `Batch complete (${spec.label}): ${successCount} rows calculated, ${skipCount} rows skipped${errorText}`;
+    }
+
+    document.getElementById('parseBatchBtn').addEventListener('click', parseBatch);
+    document.getElementById('clearBatchBtn').addEventListener('click', () => {
+        document.getElementById('batchInput').value = '';
+        document.getElementById('batchStatus').textContent = 'Ready for batch paste';
+        updateBatchModeUI();
+    });
+
+    // ============================================================
+    // SAVE / TABLE BUILDERS
+    // ============================================================
+    function getTrialsToSave() {
+        if (currentEbTrials.length > 0) return currentEbTrials.map((trial, idx) => ({ ...trial, trialNo: idx + 1 }));
+        if (!currentCalc) return [];
+        return [{
+            trialNo: 1,
+            flowValue: currentCalc.m_W_lpm,
+            flowLabel: formatFlowLabel(currentCalc.m_W_lpm),
+            m_G_EB: currentCalc.m_G_EB,
+            m_G_EB_text: formatValue(currentCalc.m_G_EB, 6),
+            energyInputs: {
+                m_W_lpm: currentCalc.m_W_lpm,
+                T_GI_C: currentCalc.T_GI_C,
+                T_GO_C: currentCalc.T_GO_C,
+                T_WI_C: currentCalc.T_WI_C,
+                T_WO_C: currentCalc.T_WO_C,
+                C_PG: currentCalc.C_PG
+            }
+        }];
+    }
+
+    function saveCurrentSession() {
+        calculate();
+        if (!currentCalc || currentCalc.rpm === null) {
+            alert('กรุณากรอกรอบเครื่องก่อนบันทึก');
+            return null;
+        }
+
+        const trials = getTrialsToSave();
+        savedSessionCounter += 1;
+
+        const session = {
+            sessionId: savedSessionCounter,
+            rpm: currentCalc.rpm,
+            baseInputs: {
+                Hcv: currentCalc.Hcv, Ocv: currentCalc.Ocv, C: currentCalc.C, H: currentCalc.H, O: currentCalc.O, S: currentCalc.S, N: currentCalc.N, n: currentCalc.n,
+                Vdot_f: currentCalc.Vdot_f, rho_f: currentCalc.rho_f,
+                CO2: currentCalc.CO2, CO: currentCalc.CO, O2: currentCalc.O2, HC_ppm: currentCalc.HC_ppm, NOx_ppm: currentCalc.NOx_ppm,
+                P_kPa: currentCalc.P_kPa, M: currentCalc.M, T_actual_C: currentCalc.T_actual_C
+            },
+            baseResults: {
+                m_fuel: currentCalc.m_fuel, lambda: currentCalc.lambda, A0: currentCalc.A0, G_prime: currentCalc.G_prime,
+                Vdot_G_STD: currentCalc.Vdot_G_STD, Vdot_G_actual: currentCalc.Vdot_G_actual, rho_exhaust: currentCalc.rho_exhaust, m_G_Gprime: currentCalc.m_G_Gprime
+            },
+            ebTrials: trials.map((trial, index) => ({ ...trial, trialNo: index + 1 }))
+        };
+
+        savedSessions.push(session);
+        currentEbTrials = [];
+        renderEbTrials();
+        renderSavedTables();
+        return session;
+    }
+
+    document.getElementById('saveSessionBtn').addEventListener('click', () => {
+        saveCurrentSession();
+    });
+
+    document.getElementById('clearSavedResultsBtn').addEventListener('click', () => {
+        savedSessions = [];
+        savedSessionCounter = 0;
+        renderSavedTables();
+    });
+
+    function buildResultsTableData() {
+        const maxTrials = savedSessions.reduce((max, s) => Math.max(max, s.ebTrials.length), 0);
+        const columns = [
+            { main: 'Speed', sub: 'rpm' },
+            { main: 'ṁfuel', sub: 'kg/s' },
+            { main: 'λ', sub: '−' },
+            { main: 'A₀', sub: 'm³N/kgfuel' },
+            { main: 'G′', sub: 'm³N/kgfuel' },
+            { main: 'V̇G,STD', sub: 'm³/s' },
+            { main: 'V̇G,actual', sub: 'm³/s' },
+            { main: 'Density', sub: 'kg/m³' },
+            { main: 'ṁG,G′', sub: 'kg/s' }
+        ];
+        for (let i = 0; i < maxTrials; i += 1) {
+            columns.push({ main: `Flow-water ${i + 1}`, sub: 'L/min' });
+            columns.push({ main: `ṁG,EB ${i + 1}`, sub: 'kg/s' });
+        }
+
+        const rows = savedSessions.map(session => {
+            const row = [
+                formatValue(session.rpm, 0),
+                formatValue(session.baseResults.m_fuel, 7),
+                formatValue(session.baseResults.lambda, 4),
+                formatValue(session.baseResults.A0, 4),
+                formatValue(session.baseResults.G_prime, 4),
+                formatValue(session.baseResults.Vdot_G_STD, 6),
+                formatValue(session.baseResults.Vdot_G_actual, 6),
+                formatValue(session.baseResults.rho_exhaust, 4),
+                formatValue(session.baseResults.m_G_Gprime, 6)
+            ];
+            for (let i = 0; i < maxTrials; i += 1) {
+                const trial = session.ebTrials[i];
+                row.push(trial ? formatValue(trial.flowValue, 2) : '—');
+                row.push(trial ? formatValue(trial.m_G_EB, 6) : '—');
+            }
+            return row;
+        });
+
+        const exportHeaders = [
+            'Speed (rpm)', 'mfuel (kg/s)', 'Lambda (-)', 'A0 (m3N/kgfuel)', 'G-prime (m3N/kgfuel)',
+            'VG-STD (m3/s)', 'VG-actual (m3/s)', 'Density (kg/m3)', 'mG-Gprime (kg/s)'
+        ];
+        for (let i = 0; i < maxTrials; i += 1) {
+            exportHeaders.push(`Flow-water ${i + 1} (L/min)`);
+            exportHeaders.push(`mG-EB ${i + 1} (kg/s)`);
+        }
+        return { columns, rows, exportHeaders };
+    }
+
+    function buildInputsTableData() {
+        const maxTrials = savedSessions.reduce((max, s) => Math.max(max, s.ebTrials.length), 0);
+        const columns = [
+            { main: 'Speed', sub: 'rpm' },
+            { main: 'H/C ratio', sub: 'Hcv' },
+            { main: 'O/C ratio', sub: 'Ocv' },
+            { main: 'C', sub: '−' },
+            { main: 'H', sub: '−' },
+            { main: 'O', sub: '−' },
+            { main: 'S', sub: '−' },
+            { main: 'N', sub: '−' },
+            { main: 'HC ref. no.', sub: 'n' },
+            { main: 'V̇fuel', sub: 'ml/min' },
+            { main: 'ρfuel', sub: 'kg/L' },
+            { main: 'CO₂', sub: '%vol' },
+            { main: 'CO', sub: '%vol' },
+            { main: 'O₂', sub: '%vol' },
+            { main: 'HC', sub: 'ppm' },
+            { main: 'NOx', sub: 'ppm' },
+            { main: 'P', sub: 'kPa' },
+            { main: 'M', sub: 'kg/mol' },
+            { main: 'Texhaust', sub: '°C' }
+        ];
+        for (let i = 0; i < maxTrials; i += 1) {
+            columns.push({ main: `ṁwater ${i + 1}`, sub: 'L/min' });
+            columns.push({ main: `TGI ${i + 1}`, sub: '°C' });
+            columns.push({ main: `TGO ${i + 1}`, sub: '°C' });
+            columns.push({ main: `TWI ${i + 1}`, sub: '°C' });
+            columns.push({ main: `TWO ${i + 1}`, sub: '°C' });
+        }
+
+        const rows = savedSessions.map(session => {
+            const b = session.baseInputs;
+            const row = [
+                formatValue(session.rpm, 0),
+                b.Hcv ?? '—', b.Ocv ?? '—', b.C ?? '—', b.H ?? '—', b.O ?? '—', b.S ?? '—', b.N ?? '—', b.n ?? '—',
+                b.Vdot_f ?? '—', b.rho_f ?? '—', b.CO2 ?? '—', b.CO ?? '—', b.O2 ?? '—', b.HC_ppm ?? '—', b.NOx_ppm ?? '—',
+                b.P_kPa ?? '—', b.M ?? '—', b.T_actual_C ?? '—'
+            ];
+            for (let i = 0; i < maxTrials; i += 1) {
+                const trial = session.ebTrials[i];
+                row.push(trial ? (trial.energyInputs.m_W_lpm ?? '—') : '—');
+                row.push(trial ? (trial.energyInputs.T_GI_C ?? '—') : '—');
+                row.push(trial ? (trial.energyInputs.T_GO_C ?? '—') : '—');
+                row.push(trial ? (trial.energyInputs.T_WI_C ?? '—') : '—');
+                row.push(trial ? (trial.energyInputs.T_WO_C ?? '—') : '—');
+            }
+            return row;
+        });
+
+        const exportHeaders = [
+            'Speed (rpm)', 'H/C ratio (Hcv)', 'O/C ratio (Ocv)', 'C (-)', 'H (-)', 'O (-)', 'S (-)', 'N (-)',
+            'HC ref. no. (n)', 'Vfuel (ml/min)', 'Fuel Density (kg/L)', 'CO2 (%vol)', 'CO (%vol)', 'O2 (%vol)',
+            'HC (ppm)', 'NOx (ppm)', 'P (kPa)', 'M (kg/mol)', 'Texhaust (C)'
+        ];
+        for (let i = 0; i < maxTrials; i += 1) {
+            exportHeaders.push(`mwater ${i + 1} (L/min)`);
+            exportHeaders.push(`TGI ${i + 1} (C)`);
+            exportHeaders.push(`TGO ${i + 1} (C)`);
+            exportHeaders.push(`TWI ${i + 1} (C)`);
+            exportHeaders.push(`TWO ${i + 1} (C)`);
+        }
+        return { columns, rows, exportHeaders };
+    }
+
+    function renderSavedTables() {
+        const resultsData = buildResultsTableData();
+        document.getElementById('savedResultsHead').innerHTML = buildTheadHtml(resultsData.columns);
+        const resultsBody = document.getElementById('savedResultsBody');
+        resultsBody.innerHTML = resultsData.rows.map(row => `<tr>${row.map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('');
+        document.getElementById('savedResultsStatus').textContent = `${savedSessions.length} saved rpm rows`;
+
+        const inputsData = buildInputsTableData();
+        document.getElementById('savedInputsHead').innerHTML = buildTheadHtml(inputsData.columns);
+        const inputsBody = document.getElementById('savedInputsBody');
+        inputsBody.innerHTML = inputsData.rows.map(row => `<tr>${row.map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('');
+        document.getElementById('savedInputsStatus').textContent = `${savedSessions.length} saved rpm rows`;
+    }
+
+    // ============================================================
+    // EXPORTS
+    // ============================================================
+    document.getElementById('exportPDFBtn').addEventListener('click', () => {
+        if (savedSessions.length === 0) {
+            alert('ยังไม่มีข้อมูลที่บันทึก');
+            return;
+        }
+
+        const resultsData = buildResultsTableData();
+        const inputsData = buildInputsTableData();
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape', 'mm', 'a4');
+
+        doc.setFontSize(16);
+        doc.setTextColor(245, 158, 11);
+        doc.text('Exhaust Gas Mass Flow Rate - Results & Input Records', 14, 16);
+        doc.setFontSize(10);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 23);
+
+        doc.autoTable({
+            startY: 28,
+            head: [resultsData.exportHeaders],
+            body: resultsData.rows,
+            styles: { fontSize: 7, cellPadding: 2.5, textColor: [229, 231, 235], fillColor: [22, 27, 34] },
+            headStyles: { fillColor: [245, 158, 11], textColor: [13, 15, 20], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [30, 37, 46] },
+            tableLineColor: [245, 158, 11],
+            tableLineWidth: 0.1,
+            margin: { left: 8, right: 8 }
+        });
+
+        let nextY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 28;
+        if (nextY > 175) {
+            doc.addPage('a4', 'landscape');
+            nextY = 16;
+        }
+
+        doc.setFontSize(14);
+        doc.setTextColor(34, 211, 238);
+        doc.text('Input Records', 14, nextY);
+
+        doc.autoTable({
+            startY: nextY + 4,
+            head: [inputsData.exportHeaders],
+            body: inputsData.rows,
+            styles: { fontSize: 6.2, cellPadding: 2, textColor: [229, 231, 235], fillColor: [22, 27, 34] },
+            headStyles: { fillColor: [34, 211, 238], textColor: [13, 15, 20], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [30, 37, 46] },
+            tableLineColor: [34, 211, 238],
+            tableLineWidth: 0.1,
+            margin: { left: 8, right: 8 }
+        });
+
+        doc.save('exhaust_results_and_inputs.pdf');
+    });
+
+    document.getElementById('exportExcelBtn').addEventListener('click', () => {
+        if (savedSessions.length === 0) {
+            alert('ยังไม่มีข้อมูลที่บันทึก');
+            return;
+        }
+
+        const resultsData = buildResultsTableData();
+        const inputsData = buildInputsTableData();
+        const wb = XLSX.utils.book_new();
+
+        const resultsSheetData = [resultsData.exportHeaders, ...resultsData.rows];
+        const inputsSheetData = [inputsData.exportHeaders, ...inputsData.rows];
+
+        const wsResults = XLSX.utils.aoa_to_sheet(resultsSheetData);
+        const wsInputs = XLSX.utils.aoa_to_sheet(inputsSheetData);
+
+        wsResults['!cols'] = resultsData.exportHeaders.map(() => ({ wch: 16 }));
+        wsInputs['!cols'] = inputsData.exportHeaders.map(() => ({ wch: 14 }));
+
+        XLSX.utils.book_append_sheet(wb, wsResults, 'Results');
+        XLSX.utils.book_append_sheet(wb, wsInputs, 'Input Records');
+        XLSX.writeFile(wb, 'exhaust_results_and_inputs.xlsx');
+    });
+
+    document.getElementById('exportInputsExcelBtn').addEventListener('click', () => {
+        if (savedSessions.length === 0) {
+            alert('ยังไม่มีข้อมูลที่บันทึก');
+            return;
+        }
+
+        const inputsData = buildInputsTableData();
+        const wb = XLSX.utils.book_new();
+        const wsInputs = XLSX.utils.aoa_to_sheet([inputsData.exportHeaders, ...inputsData.rows]);
+        wsInputs['!cols'] = inputsData.exportHeaders.map(() => ({ wch: 16 }));
+        XLSX.utils.book_append_sheet(wb, wsInputs, 'Input Records');
+        XLSX.writeFile(wb, 'input_records.xlsx');
+    });
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    window.addEventListener('load', () => {
+        attachNumberInputGuards();
+        initModeToggle();
+        initChart();
+        updateBatchModeUI();
+        document.getElementById('batchCalcType')?.addEventListener('change', updateBatchModeUI);
+        renderEbTrials();
+        renderSavedTables();
+        calculate();
+    });
 </script>
-
 </body>
 </html>
