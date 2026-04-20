@@ -476,14 +476,27 @@
                 <div class="badge">Choose calculation target first</div>
                 <div class="badge">Batch uses existing formulas only</div>
             </div>
+            <div class="input-group" style="max-width:380px;margin-bottom:12px;">
+                <label class="input-label">Batch Calculation Type</label>
+                <select id="batchCalcType" style="width:100%;padding:10px 12px;background:#0d0f14;border:1px solid rgba(245, 158, 11, 0.3);border-radius:6px;color:#e5e7eb;font-family:'JetBrains Mono', monospace;font-size:13px;">
+                    <option value="full">Full calculation</option>
+                    <option value="eb_only">Energy Balance only</option>
+                    <option value="lambda_only">Lambda only</option>
+                    <option value="gprime_only">G′ method only</option>
+                </select>
+            </div>
             <div class="summary-badges">
                 <div class="badge">Paste tab- or space-separated rows</div>
                 <div class="badge">One row = one speed point</div>
                 <div class="badge">Uses the same formulas and save logic</div>
             </div>
             <div class="input-group" style="margin-bottom:12px;">
+                <label class="input-label">Required Manual Inputs</label>
+                <div id="batchRequiredNote" class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">Hcv, Ocv, C, H, O, S, N, n, rho_f, P_kPa, M, T_actual_C, C_PG</div>
+            </div>
+            <div class="input-group" style="margin-bottom:12px;">
                 <label class="input-label">Column order</label>
-                <div class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">
+                <div id="batchColumnOrder" class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">
                     Speed&nbsp;&nbsp;Vfuel&nbsp;&nbsp;HC&nbsp;&nbsp;CO&nbsp;&nbsp;NOx&nbsp;&nbsp;O2&nbsp;&nbsp;CO2&nbsp;&nbsp;TWI_1&nbsp;&nbsp;TWO_1&nbsp;&nbsp;TGI_1&nbsp;&nbsp;TGO_1&nbsp;&nbsp;TWI_2&nbsp;&nbsp;TWO_2&nbsp;&nbsp;TGI_2&nbsp;&nbsp;TGO_2
                 </div>
             </div>
