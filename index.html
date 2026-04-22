@@ -375,11 +375,11 @@
             </div>
         </div>
 
-        <div class="collapsible-group mode-manual-only" id="section-fuel-flow">
+        <div class="collapsible-group mode-global" id="section-fuel-flow">
             <div class="group-header">Fuel Flow</div>
             <div class="group-content">
-                <div class="input-group"><label class="input-label">Volumetric Flow (V̇<sub>f</sub>) [ml/min]</label><input type="number" id="Vdot_f" step="0.1" placeholder="e.g. 100"><div class="conversion-preview" id="prev-Vdot_f"></div></div>
-                <div class="input-group"><label class="input-label">Fuel Density (ρ<sub>f</sub>) [kg/L]</label><input type="number" id="rho_f" step="0.01" placeholder="e.g. 0.74"><div class="conversion-preview" id="prev-rho_f"></div></div>
+                <div class="input-group manual-only-row" id="fuelflow-row-vdotf"><label class="input-label">Volumetric Flow (V̇<sub>f</sub>) [ml/min]</label><input type="number" id="Vdot_f" step="0.1" placeholder="e.g. 100"><div class="conversion-preview" id="prev-Vdot_f"></div></div>
+                <div class="input-group" id="fuelflow-row-rhof"><label class="input-label">Fuel Density (rho_f) [kg/L]</label><input type="number" id="rho_f" step="0.01" placeholder="e.g. 0.74"><div class="conversion-preview" id="prev-rho_f"></div></div>
             </div>
         </div>
 
@@ -508,10 +508,6 @@
                     </div>
                 </div>
                 <div>
-                    <div class="input-group">
-                        <label class="input-label">Fuel Density, ρf [kg/L]</label>
-                        <input type="number" id="batchRhoF" step="0.01" placeholder="e.g. 0.74">
-                    </div>
                     <div class="input-group"><label class="input-label">Flow-water 1 [L/min]</label><input type="number" id="batchFlow1" step="0.1" value="1.2"></div>
                     <div class="input-group"><label class="input-label">Flow-water 2 [L/min]</label><input type="number" id="batchFlow2" step="0.1" value="5.0"></div>
                     <div class="mini-buttons">
@@ -736,6 +732,7 @@
 
         const manualOnlySections = document.querySelectorAll('.mode-manual-only');
         const batchPartialRows = document.querySelectorAll('.batch-hide-eb');
+        const manualOnlyRows = document.querySelectorAll('.manual-only-row');
 
         if (mode === 'manual') {
             manualBtn.classList.add('active');
@@ -744,6 +741,7 @@
 
             manualOnlySections.forEach(el => el.classList.remove('is-hidden'));
             batchPartialRows.forEach(el => el.classList.remove('is-hidden'));
+            manualOnlyRows.forEach(el => el.classList.remove('is-hidden'));
             if (batchPanel) batchPanel.classList.add('is-hidden');
         } else {
             manualBtn.classList.remove('active');
@@ -752,6 +750,7 @@
 
             manualOnlySections.forEach(el => el.classList.add('is-hidden'));
             batchPartialRows.forEach(el => el.classList.add('is-hidden'));
+            manualOnlyRows.forEach(el => el.classList.add('is-hidden'));
             if (batchPanel) batchPanel.classList.remove('is-hidden');
         }
     }
@@ -1117,15 +1116,8 @@
         flowGroups.forEach(el => { if (el) el.classList.toggle('is-hidden', !needsFlow); });
     }
 
-    function getGlobalValueForBatch(key) {
-        if (key === 'rho_f') {
-            return parseNullable(document.getElementById('batchRhoF')?.value ?? '');
-        }
-        return parseNullable(inputs[key]?.value ?? '');
-    }
-
     function validateBatchGlobals(spec) {
-        const missing = spec.requiredGlobals.filter(key => getGlobalValueForBatch(key) === null);
+        const missing = spec.requiredGlobals.filter(key => parseNullable(inputs[key]?.value ?? '') === null);
         return missing;
     }
 
@@ -1206,8 +1198,6 @@
         const needsFlow = spec.key === 'full' || spec.key === 'eb_only';
         const flow1 = needsFlow ? parseNullable(document.getElementById('batchFlow1').value) : null;
         const flow2 = needsFlow ? parseNullable(document.getElementById('batchFlow2').value) : null;
-        const batchRhoF = parseNullable(document.getElementById('batchRhoF')?.value);
-
         if (needsFlow && (flow1 === null || flow2 === null)) {
             alert('Please enter Flow-water 1 and Flow-water 2');
             return;
@@ -1235,11 +1225,6 @@
             }
 
             const row = spec.parser(values);
-
-            if (batchRhoF !== null) {
-                inputs.rho_f.value = batchRhoF;
-            }
-
             setBaseInputsFromBatchRow(row);
             calculate();
 
@@ -1266,10 +1251,9 @@
         status.textContent = `Batch complete (${spec.label}): ${successCount} rows calculated, ${skipCount} rows skipped${errorText}`;
     }
 
-document.getElementById('parseBatchBtn').addEventListener('click', parseBatch);
+    document.getElementById('parseBatchBtn').addEventListener('click', parseBatch);
     document.getElementById('clearBatchBtn').addEventListener('click', () => {
         document.getElementById('batchInput').value = '';
-        document.getElementById('batchRhoF').value = '';
         document.getElementById('batchStatus').textContent = 'Ready for batch paste';
         updateBatchModeUI();
     });
