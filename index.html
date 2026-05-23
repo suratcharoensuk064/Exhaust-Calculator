@@ -417,7 +417,7 @@
     </div>
 
     <div class="main-content">
-        <div class="panel">
+        <div class="panel" id="calcResultsPanel">
             <div class="panel-title">Calculation Results</div>
             <div class="summary-badges">
                 <div class="badge">ṁfuel: 7 decimals</div>
@@ -437,7 +437,7 @@
             </div>
         </div>
 
-        <div class="subgrid">
+        <div class="subgrid" id="ebAndChartGrid">
             <div class="panel">
                 <div class="panel-title">EB Trials</div>
                 <div class="mini-buttons" style="margin-bottom:12px;">
@@ -734,6 +734,9 @@
         const batchPartialRows = document.querySelectorAll('.batch-hide-eb');
         const manualOnlyRows = document.querySelectorAll('.manual-only-row');
 
+        const calcResultsPanel = document.getElementById('calcResultsPanel');
+        const ebAndChartGrid = document.getElementById('ebAndChartGrid');
+
         if (mode === 'manual') {
             manualBtn.classList.add('active');
             batchBtn.classList.remove('active');
@@ -743,6 +746,8 @@
             batchPartialRows.forEach(el => el.classList.remove('is-hidden'));
             manualOnlyRows.forEach(el => el.classList.remove('is-hidden'));
             if (batchPanel) batchPanel.classList.add('is-hidden');
+            if (calcResultsPanel) calcResultsPanel.classList.remove('is-hidden');
+            if (ebAndChartGrid) ebAndChartGrid.classList.remove('is-hidden');
         } else {
             manualBtn.classList.remove('active');
             batchBtn.classList.add('active');
@@ -752,6 +757,8 @@
             batchPartialRows.forEach(el => el.classList.add('is-hidden'));
             manualOnlyRows.forEach(el => el.classList.add('is-hidden'));
             if (batchPanel) batchPanel.classList.remove('is-hidden');
+            if (calcResultsPanel) calcResultsPanel.classList.add('is-hidden');
+            if (ebAndChartGrid) ebAndChartGrid.classList.add('is-hidden');
         }
     }
 
@@ -861,7 +868,7 @@
         currentCalc = { ...snapshot, m_W, m_fuel, lambda, A0, G_prime, Vdot_G_STD, Vdot_G_actual, rho_exhaust, m_G_Gprime, m_G_EB };
 
         updateResult('m_fuel', m_fuel, 7);
-        updateResult('lambda', lambda, 4);
+        updateResult('lambda', lambda, 5);
         updateResult('A0', A0, 4);
         updateResult('G_prime', G_prime, 4);
         updateResult('Vdot_G_STD', Vdot_G_STD, 6);
@@ -1346,7 +1353,7 @@
             const row = [
                 formatValue(session.rpm, 0),
                 formatValue(session.baseResults.m_fuel, 7),
-                formatValue(session.baseResults.lambda, 4),
+                formatValue(session.baseResults.lambda, 5),
                 formatValue(session.baseResults.A0, 4),
                 formatValue(session.baseResults.G_prime, 4),
                 formatValue(session.baseResults.Vdot_G_STD, 6),
