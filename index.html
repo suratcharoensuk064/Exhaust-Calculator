@@ -464,7 +464,7 @@
                 <div class="result-card" id="card-m_G_EB"><div class="result-label">ṁ<sub>G,EB</sub></div><div class="result-value" id="val-m_G_EB">—</div><div class="result-unit">kg/s</div><div class="result-equation">(Eq. 2.45)</div><div id="val-m_W_tag" style="margin-top:4px;font-size:9px;color:#22d3ee;font-family:'JetBrains Mono',monospace;"></div></div>
                 <div class="result-card" id="card-Vdot_air"><div class="result-label">V̇<sub>air</sub></div><div class="result-value" id="val-Vdot_air">—</div><div class="result-unit">m³/hr</div><div class="result-equation">Mass balance input</div></div>
                 <div class="result-card" id="card-m_air"><div class="result-label">ṁ<sub>air</sub></div><div class="result-value" id="val-m_air">—</div><div class="result-unit">kg/s</div><div class="result-equation">ρ<sub>air</sub>V̇<sub>air</sub></div></div>
-                <div class="result-card" id="card-m_G_MB"><div class="result-label">ṁ<sub>G,MB</sub></div><div class="result-value" id="val-m_G_MB">—</div><div class="result-unit">kg/s</div><div class="result-equation">ṁ<sub>fuel</sub> + ṁ<sub>air</sub></div></div>
+                <div class="result-card" id="card-m_G_MB"><div class="result-label">ṁ<sub>G,in</sub></div><div class="result-value" id="val-m_G_MB">—</div><div class="result-unit">kg/s</div><div class="result-equation">ṁ<sub>fuel</sub> + ṁ<sub>air</sub></div></div>
             </div>
         </div>
 
@@ -1065,7 +1065,7 @@
                     },
                     {
                         type: 'scatter',
-                        label: "ṁG,MB",
+                        label: "ṁG,in",
                         flowKey: 'MASSBALANCE',
                         borderColor: '#0f766e',
                         backgroundColor: '#0f766e',
@@ -1438,7 +1438,7 @@
             { main: 'Density', sub: 'kg/m³' },
             { main: 'ṁG,G′', sub: 'kg/s' },
             { main: 'ṁair', sub: 'kg/s' },
-            { main: 'ṁG,MB', sub: 'kg/s' }
+            { main: 'ṁG,in', sub: 'kg/s' }
         ];
         for (let i = 0; i < maxTrials; i += 1) {
             columns.push({ main: `Flow-water ${i + 1}`, sub: 'L/min' });
